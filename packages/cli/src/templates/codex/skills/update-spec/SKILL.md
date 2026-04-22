@@ -1,11 +1,13 @@
-﻿---
+---
 name: update-spec
-description: "Update Code-Spec - Capture Executable Contracts"
+description: Capture executable contracts by updating code-spec documents after learning something valuable from debugging, implementing, or discussion. Creates executable contracts with concrete signatures, payload fields, env keys, and boundary behavior. Includes mandatory 7-section template for infra/cross-layer work with signatures, contracts, validation/error matrix, good/base/bad cases, and tests required.
 ---
 
 # Update Code-Spec - Capture Executable Contracts
 
-When you learn something valuable (from debugging, implementing, or discussion), use this skill to update the relevant code-spec documents.
+When you learn something valuable (from debugging, implementing, or discussion), use this command to update the relevant code-spec documents.
+
+Before following this command, read `reference/workflow-context.md`. Reuse current task findings, validation results, and spec context instead of rediscovering the same material.
 
 **Timing**: After completing a task, fixing a bug, or discovering a new pattern
 
@@ -20,7 +22,17 @@ In this project, "spec" for implementation work means **code-spec**:
 
 If the change touches infra or cross-layer contracts, code-spec depth is mandatory.
 
-Required sections for infra/cross-layer specs:
+### Mandatory Triggers
+
+Apply code-spec depth when the change includes any of:
+- New/changed command or API signature
+- Cross-layer request/response contract change
+- Database schema/migration change
+- Infra integration (storage, queue, cache, secrets, env wiring)
+
+### Mandatory Output (7 Sections)
+
+For triggered tasks, include all sections below:
 1. Scope / Trigger
 2. Signatures (command/API/DB)
 3. Contracts (request/response/env)
@@ -145,10 +157,24 @@ If you added a new section or the code-spec status changed, update the category'
 - Trigger: <why this requires code-spec depth>
 
 ### 2. Signatures
+- Backend command/API/DB signature(s)
+
 ### 3. Contracts
+- Request fields (name, type, constraints)
+- Response fields (name, type, constraints)
+- Environment keys (required/optional)
+
 ### 4. Validation & Error Matrix
+- <condition> -> <error>
+
 ### 5. Good/Base/Bad Cases
+- Good: ...
+- Base: ...
+- Bad: ...
+
 ### 6. Tests Required
+- Unit/Integration/E2E with assertion points
+
 ### 7. Wrong vs Correct
 #### Wrong
 ...
@@ -313,15 +339,15 @@ Before finishing your code-spec update:
 
 ```
 Development Flow:
-  Learn something → $update-spec → Knowledge captured
+  Learn something → /update-spec → Knowledge captured
        ↑                                  ↓
-  $break-loop ←──────────────────── Future sessions benefit
+  /break-loop ←──────────────────── Future sessions benefit
   (deep bug analysis)
 ```
 
-- `$break-loop` - Analyzes bugs deeply, often reveals spec updates needed
-- `$update-spec` - Actually makes the updates (this skill)
-- `$finish-work` - Reminds you to check if specs need updates
+- `/break-loop` - Analyzes bugs deeply, often reveals spec updates needed
+- `/update-spec` - Actually makes the updates (this command)
+- `/finish-work` - Reminds you to check if specs need updates
 
 ---
 
@@ -333,3 +359,15 @@ The goal is **institutional memory**:
 - What one person learns, everyone benefits from
 - What AI learns in one session, persists to future sessions
 - Mistakes become documented guardrails
+
+---
+
+## Next Step
+
+After the code-spec update is complete:
+
+```text
+✓ Code-spec updated
+Next command: /finish-work
+Run it manually.
+```

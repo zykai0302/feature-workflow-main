@@ -43,7 +43,7 @@ import {
   getAllHooks as getIflowHooks,
   getSettingsTemplate as getIflowSettings,
 } from "../templates/iflow/index.js";
-import { getAllSkills as getCodexSkills } from "../templates/codex/index.js";
+import { getAllSkills as getCodexSkills, getAllReferences as getCodexReferences } from "../templates/codex/index.js";
 import { getAllWorkflows as getKiloWorkflows } from "../templates/kilo/index.js";
 import { getAllSkills as getKiroSkills } from "../templates/kiro/index.js";
 import { getAllCommands as getGeminiCommands } from "../templates/gemini/index.js";
@@ -154,6 +154,9 @@ const PLATFORM_FUNCTIONS: Record<AITool, PlatformFunctions> = {
       const files = new Map<string, string>();
       for (const skill of getCodexSkills()) {
         files.set(`.agents/skills/${skill.name}/SKILL.md`, skill.content);
+      }
+      for (const ref of getCodexReferences()) {
+        files.set(`.agents/skills/${ref.skillName}/${ref.relativePath}`, ref.content);
       }
       return files;
     },

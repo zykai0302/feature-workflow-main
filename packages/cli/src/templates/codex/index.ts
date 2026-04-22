@@ -8,10 +8,11 @@
  *   codex/
  *   └── skills/
  *       └── <skill-name>/
- *           └── SKILL.md
+ *           ├── SKILL.md
+ *           └── reference/    (optional, supporting files)
  */
 
-import { readdirSync, readFileSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -38,6 +39,15 @@ export interface SkillTemplate {
   content: string;
 }
 
+/**
+ * Reference file template with relative path and content
+ */
+export interface ReferenceTemplate {
+  skillName: string;
+  relativePath: string;
+  content: string;
+}
+
 export function getAllSkills(): SkillTemplate[] {
   const skills: SkillTemplate[] = [];
 
@@ -47,4 +57,34 @@ export function getAllSkills(): SkillTemplate[] {
   }
 
   return skills;
+}
+
+/**
+ * Get all reference files for all skills.
+ * Reference files are stored in skills/<skill-name>/reference/ subdirectory.
+ */
+export function getAllReferences(): ReferenceTemplate[] {
+  const refs: ReferenceTemplate[] = [];
+
+  for (const skillName of listSkillNames()) {
+    const refDir = join(__dirname, "skills", skillName, "reference");
+    try {
+      const entries = readdirSync(refDir);
+      for (const entry of entries) {
+        const fullPath = join(refDir, entry);
+        if (statSync(fullPath).isFile()) {
+          const content = readFileSync(fullPath, "utf-8");
+          refs.push({
+            skillName,
+            relativePath: `reference/${entry}`,
+            content,
+          });
+        }
+      }
+    } catch {
+      // No reference directory for this skill
+    }
+  }
+
+  return refs;
 }
