@@ -33,6 +33,7 @@ import {
   getAllAgents as getClaudeAgents,
   getAllCommands as getClaudeCommands,
   getAllHooks as getClaudeHooks,
+  getAllRules as getClaudeRules,
   getSettingsTemplate as getClaudeSettings,
 } from "../templates/claude/index.js";
 import { getAllCommands as getCursorCommands } from "../templates/cursor/index.js";
@@ -49,9 +50,16 @@ import { getAllCommands as getGeminiCommands } from "../templates/gemini/index.j
 import { getAllWorkflows as getAntigravityWorkflows } from "../templates/antigravity/index.js";
 import { getAllSkills as getQoderSkills } from "../templates/qoder/index.js";
 import {
+  getAllCommands as getQoderCommands,
+  getAllHooks as getQoderHooks,
+  getAllRules as getQoderRules,
+  getSettingsTemplate as getQoderSettings,
+} from "../templates/qoder/index.js";
+import {
   getAllCommands as getCodebuddyCommands,
   getAllAgents as getCodebuddyAgents,
   getAllHooks as getCodebuddyHooks,
+  getAllRules as getCodebuddyRules,
   getSettingsTemplate as getCodebuddySettings,
 } from "../templates/codebuddy/index.js";
 
@@ -86,6 +94,10 @@ const PLATFORM_FUNCTIONS: Record<AITool, PlatformFunctions> = {
       // Hooks
       for (const hook of getClaudeHooks()) {
         files.set(`.claude/${hook.targetPath}`, hook.content);
+      }
+      // Rules
+      for (const rule of getClaudeRules()) {
+        files.set(`.claude/rules/${rule.name}`, rule.content);
       }
       // Settings (resolve {{PYTHON_CMD}} to match what configure() writes)
       const settings = getClaudeSettings();
@@ -190,9 +202,28 @@ const PLATFORM_FUNCTIONS: Record<AITool, PlatformFunctions> = {
     configure: configureQoder,
     collectTemplates: () => {
       const files = new Map<string, string>();
+      // Commands (in feature/ subdirectory for namespace)
+      for (const cmd of getQoderCommands()) {
+        files.set(`.qoder/commands/feature/${cmd.name}.md`, cmd.content);
+      }
+      // Hooks
+      for (const hook of getQoderHooks()) {
+        files.set(`.qoder/${hook.targetPath}`, hook.content);
+      }
+      // Rules
+      for (const rule of getQoderRules()) {
+        files.set(`.qoder/rules/${rule.name}`, rule.content);
+      }
+      // Skills
       for (const skill of getQoderSkills()) {
         files.set(`.qoder/skills/${skill.name}/SKILL.md`, skill.content);
       }
+      // Settings (resolve {{PYTHON_CMD}} to match what configure() writes)
+      const settings = getQoderSettings();
+      files.set(
+        `.qoder/${settings.targetPath}`,
+        resolvePlaceholders(settings.content),
+      );
       return files;
     },
   },
@@ -211,6 +242,10 @@ const PLATFORM_FUNCTIONS: Record<AITool, PlatformFunctions> = {
       // Hooks
       for (const hook of getCodebuddyHooks()) {
         files.set(`.codebuddy/${hook.targetPath}`, hook.content);
+      }
+      // Rules
+      for (const rule of getCodebuddyRules()) {
+        files.set(`.codebuddy/rules/${rule.name}`, rule.content);
       }
       // Settings (resolve {{PYTHON_CMD}} to match what configure() writes)
       const settings = getCodebuddySettings();

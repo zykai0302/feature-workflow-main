@@ -1,6 +1,8 @@
 ﻿# Create New Slash Command
 
-Create a new slash command in both `.cursor/commands/` (with `feature-` prefix) and `.claude/commands/feature/` directories based on user requirements.
+Create a new slash command in both `.claude/commands/feature/` and `.codebuddy/commands/feature/` directories based on user requirements.
+
+Before following this command, read `_shared/workflow-context.md`. Reuse any already-loaded workflow and guideline context so the new command matches the current Feature command style.
 
 ## Usage
 
@@ -9,6 +11,7 @@ Create a new slash command in both `.cursor/commands/` (with `feature-` prefix) 
 ```
 
 **Example**:
+
 ```
 /feature:create-command review-pr Check PR code changes against project guidelines
 ```
@@ -18,12 +21,14 @@ Create a new slash command in both `.cursor/commands/` (with `feature-` prefix) 
 ### 1. Parse Input
 
 Extract from user input:
+
 - **Command name**: Use kebab-case (e.g., `review-pr`)
 - **Description**: What the command should accomplish
 
 ### 2. Analyze Requirements
 
 Determine command type based on description:
+
 - **Initialization**: Read docs, establish context
 - **Pre-development**: Read guidelines, check dependencies
 - **Code check**: Validate code quality and guideline compliance
@@ -35,11 +40,13 @@ Determine command type based on description:
 Based on command type, generate appropriate content:
 
 **Simple command** (1-3 lines):
+
 ```markdown
 Concise instruction describing what to do
 ```
 
 **Complex command** (with steps):
+
 ```markdown
 # Command Title
 
@@ -61,18 +68,20 @@ Template
 ### 4. Create Files
 
 Create in both directories:
-- `.cursor/commands/feature-<command-name>.md`
+
 - `.claude/commands/feature/<command-name>.md`
+- `.codebuddy/commands/feature/<command-name>.md`
 
 ### 5. Confirm Creation
 
 Output result:
+
 ```
 [OK] Created Slash Command: /<command-name>
 
 File paths:
-- .cursor/commands/feature-<command-name>.md
 - .claude/commands/feature/<command-name>.md
+- .codebuddy/commands/feature/<command-name>.md
 
 Usage:
 /feature:<command-name>
@@ -98,24 +107,26 @@ Description:
 
 ## Naming Conventions
 
-| Command Type | Prefix | Example |
-|--------------|--------|---------|
-| Session Start | `start` | `start` |
-| Pre-development | `before-` | `before-frontend-dev` |
-| Check | `check-` | `check-frontend` |
-| Record | `record-` | `record-session` |
-| Generate | `generate-` | `generate-api-doc` |
-| Update | `update-` | `update-changelog` |
-| Other | Verb-first | `review-code`, `sync-data` |
+| Command Type    | Prefix      | Example                    |
+| --------------- | ----------- | -------------------------- |
+| Session Start   | `start`     | `start`                    |
+| Pre-development | `before-`   | `before-dev`               |
+| Check           | `check-`    | `check`                    |
+| Record          | `record-`   | `record-session`           |
+| Generate        | `generate-` | `generate-api-doc`         |
+| Update          | `update-`   | `update-changelog`         |
+| Other           | Verb-first  | `review-code`, `sync-data` |
 
 ## Example
 
 ### Input
+
 ```
 /feature:create-command review-pr Check PR code changes against project guidelines
 ```
 
 ### Generated Command Content
+
 ```markdown
 # PR Code Review
 
@@ -131,9 +142,11 @@ git diff main...HEAD --name-only
 ### 2. Categorized Review
 
 **Frontend files** (`apps/web/`):
+
 - Reference `.feature/spec/frontend/index.md`
 
 **Backend files** (`packages/api/`):
+
 - Reference `.feature/spec/backend/index.md`
 
 ### 3. Output Review Report
@@ -143,12 +156,31 @@ Format:
 ## PR Review Report
 
 ### Changed Files
+
 - [file list]
 
 ### Check Results
+
 - [OK] Passed items
-- [X] Issues found
+
+- [x] Issues found
 
 ### Suggestions
+
 - [improvement suggestions]
+  
+  ```
+
+---
+
+## Next Step
+
+After creating the command files:
+
+```text
+✓ Slash command created
+Next command: /feature:finish-work
+Run it manually after you review the generated command content.
 ```
+  
+  ```

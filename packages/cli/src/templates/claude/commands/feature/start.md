@@ -2,25 +2,29 @@
 
 Initialize your AI development session and begin working on tasks.
 
+Before following this command, read `_shared/workflow-context.md` and reuse already-loaded session context instead of re-reading unchanged workflow or spec files.
+
 ---
 
 ## Operation Types
 
+Operations in this document are categorized as:
+
 | Marker | Meaning | Executor |
 |--------|---------|----------|
-| `[AI]` | Bash scripts or Task calls executed by AI | You (AI) |
+| `[AI]` | Bash scripts or file reads executed by AI | You (AI) |
 | `[USER]` | Slash commands executed by user | User |
 
 ---
 
-## Initialization `[AI]`
+## Initialization
 
-### Step 1: Understand Development Workflow
+### Step 1: Understand Development Workflow `[AI]`
 
 First, read the workflow guide to understand the development process:
 
 ```bash
-cat .feature/workflow.md
+cat .feature/workflow.md  # Development process, conventions, and quick start guide
 ```
 
 **Follow the instructions in workflow.md** - it contains:
@@ -29,30 +33,56 @@ cat .feature/workflow.md
 - Development process
 - Best practices
 
-### Step 2: Get Current Context
+### Step 2: Get Current Status `[AI]`
 
 ```bash
 python3 ./.feature/scripts/get_context.py
 ```
 
-This shows: developer identity, git status, current task (if any), active tasks.
+This returns:
+- Developer identity
+- Git status (branch, uncommitted changes)
+- Recent commits
+- Active tasks
+- Journal file status
 
-### Step 3: Read Guidelines Index
+### Step 3: Read Guidelines Index `[AI]`
 
 ```bash
 cat .feature/spec/frontend/index.md  # Frontend guidelines
 cat .feature/spec/backend/index.md   # Backend guidelines
 cat .feature/spec/guides/index.md    # Thinking guides
-cat .feature/spec/unit-test/index.md # Testing guidelines
 ```
 
 > **Important**: The index files are navigation — they list the actual guideline files (e.g., `error-handling.md`, `conventions.md`, `mock-strategies.md`).
 > At this step, just read the indexes to understand what's available.
 > When you start actual development, you MUST go back and read the specific guideline files relevant to your task, as listed in the index's Pre-Development Checklist.
 
-### Step 4: Report and Ask
+### Step 4: Check Active Tasks `[AI]`
 
-Report what you learned and ask: "What would you like to work on?"
+```bash
+python3 ./.feature/scripts/task.py list
+```
+
+If continuing previous work, review the task file.
+
+### Step 5: Report Ready Status and Ask for Tasks
+
+Output a summary:
+
+```markdown
+## Session Initialized
+
+| Item | Status |
+|------|--------|
+| Developer | {name} |
+| Branch | {branch} |
+| Uncommitted | {count} file(s) |
+| Journal | {file} ({lines}/2000 lines) |
+| Active Tasks | {count} |
+
+Ready for your task. What would you like to work on?
+```
 
 ---
 
@@ -63,9 +93,9 @@ When user describes a task, classify it:
 | Type | Criteria | Workflow |
 |------|----------|----------|
 | **Question** | User asks about code, architecture, or how something works | Answer directly |
-| **Trivial Fix** | Typo fix, comment update, single-line change | Direct Edit |
-| **Simple Task** | Clear goal, 1-2 files, well-defined scope | Quick confirm → Implement |
-| **Complex Task** | Vague goal, multiple files, architectural decisions | **Brainstorm → Task Workflow** |
+| **Trivial Fix** | Typo fix, comment update, single-line change, < 5 minutes | Direct Edit |
+| **Simple Task** | Clear goal, 1-2 files, well-defined scope | Quick confirm -> Task Workflow |
+| **Complex Task** | Vague goal, multiple files, architectural decisions | **Brainstorm -> Task Workflow** |
 
 ### Classification Signals
 
@@ -86,8 +116,12 @@ When user describes a task, classify it:
 
 > **If in doubt, use Brainstorm + Task Workflow.**
 >
-> Task Workflow ensures code-spec context is injected to agents, resulting in higher quality code.
+> Task Workflow ensures code-specs are injected to the right context, resulting in higher quality code.
 > The overhead is minimal, but the benefit is significant.
+
+> **Subtask Decomposition**: If brainstorm reveals multiple independent work items,
+> consider creating subtasks using `--parent` flag or `add-subtask` command.
+> See `/feature:brainstorm` Step 8 for details.
 
 ---
 
@@ -106,284 +140,190 @@ For simple, well-defined tasks:
 
 1. Quick confirm: "I understand you want to [goal]. Shall I proceed?"
 2. If no, clarify and confirm again
-3. **If yes: execute ALL steps below without stopping. Do NOT ask for additional confirmation between steps.**
-   - Create task directory (Phase 1 Path B, Step 2)
-   - Write PRD (Step 3)
-   - Research codebase (Phase 2, Step 5)
-   - Configure context (Step 6)
-   - Activate task (Step 7)
-   - Implement (Phase 3, Step 8)
-   - Check quality (Step 9)
-   - Complete (Step 10)
+3. **If yes: classify the task and hand off to the next command. Do not auto-run later `/feature:*` commands from inside `/feature:start`.**
+
+   ```text
+   OK Task classified as: Simple Task
+   Next command: /feature:init-plan
+   Run it manually.
+   ```
+
+For simple development tasks, `/feature:init-plan` is the lightweight workflow entry. It should ensure the task directory exists, seed a minimal `prd.md` if needed, and create or restore the durable task files (`task_plan.md`, `findings.md`, `progress.md`).
+
+Default lightweight flow for simple tasks:
+
+```text
+/feature:start -> /feature:init-plan -> implement directly -> /feature:check -> /feature:finish-work -> /feature:record-session
+```
+
+Escalate only if needed:
+
+- use `/feature:research` if the codebase or constraints are still unclear
+- use `/feature:before-dev` if you need injected spec/context files before editing
+- use `/feature:write-plan` if the task stops being simple and now needs an executable plan
 
 ---
 
 ## Complex Task - Brainstorm First
 
-For complex or vague tasks, **automatically start the brainstorm process** — do NOT skip directly to implementation.
+For complex or vague tasks, route to brainstorm first. Do NOT skip directly to implementation.
 
-See `/feature:brainstorm` for the full process. Summary:
+Display the handoff and stop:
+
+```text
+OK Task classified as: Complex Task
+Next command: /feature:brainstorm
+Run it manually.
+```
+
+The brainstorm command will:
+1. Use GitNexus MCP tools to research the codebase in Step 1
+2. Guide you through requirements clarification
+3. Generate PRD with human validation gate
+4. Hand off to `/feature:init-plan` after validation
+
+Summary of what brainstorm does:
 
 1. **Acknowledge and classify** - State your understanding
-2. **Create task directory** - Track evolving requirements in `prd.md`
-3. **Ask questions one at a time** - Update PRD after each answer
-4. **Propose approaches** - For architectural decisions
-5. **Confirm final requirements** - Get explicit approval
-6. **Proceed to Task Workflow** - With clear requirements in PRD
+2. **GitNexus research (Step 1)** - Use `mcp__gitnexus__*` tools to understand codebase
+3. **Create task directory** - Track evolving requirements in `prd.md`
+4. **Ask questions one at a time** - Update PRD after each answer
+5. **Propose approaches** - For architectural decisions
+6. **Confirm final requirements** - Get explicit approval (Human Validation Gate)
+7. **Hand off to `/feature:init-plan`** - After PRD validation
 
-> **Subtask Decomposition**: If brainstorm reveals multiple independent work items,
-> consider creating subtasks using `--parent` flag or `add-subtask` command.
-> See `/feature:brainstorm` Step 8 for details.
+## Next Step
 
-### Key Brainstorm Principles
+End `/feature:start` by classifying the task and naming exactly one next user-run command:
 
-| Principle | Description |
-|-----------|-------------|
-| **One question at a time** | Never overwhelm with multiple questions |
-| **Update PRD immediately** | After each answer, update the document |
-| **Prefer multiple choice** | Easier for users to answer |
-| **YAGNI** | Challenge unnecessary complexity |
+- question or trivial fix -> no workflow handoff required
+- simple task -> `/feature:init-plan`
+- complex task -> `/feature:brainstorm`
 
 ---
 
 ## Task Workflow (Development Tasks)
 
 **Why this workflow?**
-- Research Agent analyzes what code-spec files are needed
-- Code-spec files are configured in jsonl files
-- Implement Agent receives code-spec context via Hook injection
-- Check Agent verifies against code-spec requirements
-- Result: Code that follows project conventions automatically
+- Keep task memory durable on disk
+- Allow simple work to stay lightweight
+- Escalate to research and planning only when complexity justifies it
+- Result: less ceremony for small changes, without losing recoverability
 
 ### Overview: Two Entry Points
 
-```
+```text
 From Brainstorm (Complex Task):
-  PRD confirmed → Research → Configure Context → Activate → Implement → Check → Complete
+  PRD confirmed -> /feature:init-plan -> /feature:research -> /feature:before-dev -> /feature:write-plan -> implement -> check -> complete
 
 From Simple Task:
-  Confirm → Create Task → Write PRD → Research → Configure Context → Activate → Implement → Check → Complete
+  Confirm -> /feature:init-plan -> implement directly -> /feature:check -> /feature:finish-work -> /feature:record-session
 ```
 
-**Key principle: Research happens AFTER requirements are clear (PRD exists).**
+In the simple-task path, "implement directly" means continue coding in the same session after `/feature:init-plan` finishes. It is not another required `/feature:*` command.
+
+**Key principle: simple tasks start light and escalate only when the task stops being simple.**
+
+`before-dev` is not the requirements or task-memory entry point. It assumes the task already has `prd.md`, `task_plan.md`, `findings.md`, and `progress.md`.
+
+### Integrated Workflow Addendum
+
+For substantial tasks, use the fuller sequence:
+
+```text
+/feature:brainstorm -> /feature:init-plan -> /feature:research -> /feature:before-dev -> /feature:write-plan -> /feature:write-testcase -> /feature:check-testcase -> /feature:executing-plans or /feature:subagent-work -> optional /feature:impact -> /feature:check -> /feature:review -> /feature:finish-work -> /feature:compound -> /feature:record-session
+```
+
+Additional rules:
+- `brainstorm` comes before planning and is used to clarify requirements and compare approaches
+- `research` is the formal codebase investigation step and belongs before `write-plan`
+- simple tasks do not need `research`, `before-dev`, `write-plan`, `write-testcase`, or `check-testcase` by default
+- for complex tasks, `write-testcase` and `check-testcase` are mandatory steps between `write-plan` and `executing-plans`
+- `impact` is optional and is most useful before major changes or before final verification on risky tasks
+- all generated task documents must live under `.feature/tasks/<task>/`
 
 ---
 
-### Phase 1: Establish Requirements
+### Lightweight Execution Model
 
-#### Path A: From Brainstorm (skip to Phase 2)
+For simple tasks, keep the workflow narrow:
 
-PRD and task directory already exist from brainstorm. Skip directly to Phase 2.
+1. Confirm the goal and any non-obvious constraint.
+2. Run `/feature:init-plan` to ensure the task directory, minimal `prd.md`, and task memory files exist.
+3. Implement directly in the current session.
+4. Run `/feature:check`.
+5. Run `/feature:finish-work`.
+6. Run `/feature:record-session`.
 
-#### Path B: From Simple Task
+Upgrade the task to the substantial workflow if any of these become true:
 
-**Step 1: Confirm Understanding** `[AI]`
-
-Quick confirm:
-- What is the goal?
-- What type of development? (frontend / backend / fullstack)
-- Any specific requirements or constraints?
-
-**Step 2: Create Task Directory** `[AI]`
-
-```bash
-TASK_DIR=$(python3 ./.feature/scripts/task.py create "<title>" --slug <name>)
-```
-
-**Step 3: Write PRD** `[AI]`
-
-Create `prd.md` in the task directory with:
-
-```markdown
-# <Task Title>
-
-## Goal
-<What we're trying to achieve>
-
-## Requirements
-- <Requirement 1>
-- <Requirement 2>
-
-## Acceptance Criteria
-- [ ] <Criterion 1>
-- [ ] <Criterion 2>
-
-## Technical Notes
-<Any technical decisions or constraints>
-```
+- the change expands beyond 1-2 files
+- you need repository research to avoid guesswork
+- the task touches infra or cross-layer contracts
+- you need a delegated or multi-phase execution plan
 
 ---
 
-### Phase 2: Prepare for Implementation (shared)
+## User Available Commands `[USER]`
 
-> Both paths converge here. PRD and task directory must exist before proceeding.
+The following slash commands are for users (not AI):
 
-**Step 4: Code-Spec Depth Check** `[AI]`
-
-If the task touches infra or cross-layer contracts, do not start implementation until code-spec depth is defined.
-
-Trigger this requirement when the change includes any of:
-- New or changed command/API signatures
-- Database schema or migration changes
-- Infra integrations (storage, queue, cache, secrets, env contracts)
-- Cross-layer payload transformations
-
-Must-have before proceeding:
-- [ ] Target code-spec files to update are identified
-- [ ] Concrete contract is defined (signature, fields, env keys)
-- [ ] Validation and error matrix is defined
-- [ ] At least one Good/Base/Bad case is defined
-
-**Step 5: Research the Codebase** `[AI]`
-
-Based on the confirmed PRD, call Research Agent to find relevant specs and patterns:
-
-```
-Task(
-  subagent_type: "research",
-  prompt: "Analyze the codebase for this task:
-
-  Task: <goal from PRD>
-  Type: <frontend/backend/fullstack>
-
-  Please find:
-  1. Relevant code-spec files in .feature/spec/
-  2. Existing code patterns to follow (find 2-3 examples)
-  3. Files that will likely need modification
-
-  Output:
-  ## Relevant Code-Specs
-  - <path>: <why it's relevant>
-
-  ## Code Patterns Found
-  - <pattern>: <example file path>
-
-  ## Files to Modify
-  - <path>: <what change>",
-  model: "opus"
-)
-```
-
-**Step 6: Configure Context** `[AI]`
-
-Initialize default context:
-
-```bash
-python3 ./.feature/scripts/task.py init-context "$TASK_DIR" <type>
-# type: backend | frontend | fullstack
-```
-
-Add code-spec files found by Research Agent:
-
-```bash
-# For each relevant code-spec and code pattern:
-python3 ./.feature/scripts/task.py add-context "$TASK_DIR" implement "<path>" "<reason>"
-python3 ./.feature/scripts/task.py add-context "$TASK_DIR" check "<path>" "<reason>"
-```
-
-**Step 7: Activate Task** `[AI]`
-
-```bash
-python3 ./.feature/scripts/task.py start "$TASK_DIR"
-```
-
-This sets `.current-task` so hooks can inject context.
-
----
-
-### Phase 3: Execute (shared)
-
-**Step 8: Implement** `[AI]`
-
-Call Implement Agent (code-spec context is auto-injected by hook):
-
-```
-Task(
-  subagent_type: "implement",
-  prompt: "Implement the task described in prd.md.
-
-  Follow all code-spec files that have been injected into your context.
-  Run lint and typecheck before finishing.",
-  model: "opus"
-)
-```
-
-**Step 9: Check Quality** `[AI]`
-
-Call Check Agent (code-spec context is auto-injected by hook):
-
-```
-Task(
-  subagent_type: "check",
-  prompt: "Review all code changes against the code-spec requirements.
-
-  Fix any issues you find directly.
-  Ensure lint and typecheck pass.",
-  model: "opus"
-)
-```
-
-**Step 10: Complete** `[AI]`
-
-1. Verify lint and typecheck pass
-2. Report what was implemented
-3. Remind user to:
-   - Test the changes
-   - Commit when ready
-   - Run `/feature:record-session` to record this session
-
----
-
-## Continuing Existing Task
-
-If `get_context.py` shows a current task:
-
-1. Read the task's `prd.md` to understand the goal
-2. Check `task.json` for current status and phase
-3. Ask user: "Continue working on <task-name>?"
-
-If yes, resume from the appropriate step (usually Step 7 or 8).
-
----
-
-## Commands Reference
-
-### User Commands `[USER]`
-
-| Command | When to Use |
+| Command | Description |
 |---------|-------------|
-| `/feature:start` | Begin a session (this command) |
-| `/feature:brainstorm` | Clarify vague requirements (called from start) |
-| `/feature:parallel` | Complex tasks needing isolated worktree |
-| `/feature:finish-work` | Before committing changes |
-| `/feature:record-session` | After completing a task |
+| `/feature:start` | Start development session (this command) |
+| `/feature:brainstorm` | Clarify vague requirements before implementation |
+| `/feature:init-plan` | Create or restore the task directory, `prd.md`, and task memory files |
+| `/feature:research` | Perform formal codebase research before planning |
+| `/feature:before-dev` | Read development guidelines |
+| `/feature:write-plan` | Generate `.feature/tasks/<task>/implementation-plan.md` |
+| `/feature:executing-plans` | Execute the implementation plan sequentially |
+| `/feature:subagent-work` | Execute plan items in delegated fashion |
+| `/feature:impact` | Review blast radius before major changes |
+| `/feature:check` | Check code quality |
+| `/feature:review` | Formal multi-dimension review |
+| `/feature:check-cross-layer` | Cross-layer verification |
+| `/feature:finish-work` | Pre-commit checklist |
+| `/feature:compound` | Distill learnings into task / spec / workspace docs |
+| `/feature:record-session` | Record session progress |
 
-### AI Scripts `[AI]`
+---
+
+## AI Executed Scripts `[AI]`
 
 | Script | Purpose |
 |--------|---------|
+| `python3 ./.feature/scripts/task.py create "<title>" [--slug <name>]` | Create task directory |
+| `python3 ./.feature/scripts/task.py list` | List active tasks |
+| `python3 ./.feature/scripts/task.py archive <name>` | Archive task |
 | `python3 ./.feature/scripts/get_context.py` | Get session context |
-| `python3 ./.feature/scripts/task.py create` | Create task directory |
-| `python3 ./.feature/scripts/task.py init-context` | Initialize jsonl files |
-| `python3 ./.feature/scripts/task.py add-context` | Add code-spec/context file to jsonl |
-| `python3 ./.feature/scripts/task.py start` | Set current task |
-| `python3 ./.feature/scripts/task.py finish` | Clear current task |
-| `python3 ./.feature/scripts/task.py archive` | Archive completed task |
-
-### Sub Agents `[AI]`
-
-| Agent | Purpose | Hook Injection |
-|-------|---------|----------------|
-| research | Analyze codebase | No (reads directly) |
-| implement | Write code | Yes (implement.jsonl) |
-| check | Review & fix | Yes (check.jsonl) |
-| debug | Fix specific issues | Yes (debug.jsonl) |
 
 ---
 
-## Key Principle
+## Platform Detection
 
-> **Code-spec context is injected, not remembered.**
->
-> The Task Workflow ensures agents receive relevant code-spec context automatically.
-> This is more reliable than hoping the AI "remembers" conventions.
+Feature auto-detects your platform based on config directories. For CodeBuddy users, ensure detection works correctly:
+
+| Condition | Detected Platform |
+|-----------|-------------------|
+| Only `.claude/` exists | `claude` |
+| Both `.codebuddy/` and `.claude/` exist | `claude` (default) |
+
+If auto-detection fails, set manually:
+
+```bash
+export FEATURE_PLATFORM=codebuddy
+```
+
+Or prefix commands:
+
+```bash
+FEATURE_PLATFORM=codebuddy python3 ./.feature/scripts/task.py list
+```
+
+---
+
+## Session End Reminder
+
+**IMPORTANT**: When a task or session is completed, remind the user:
+
+> Before ending this session, please run `/feature:record-session` to record what we accomplished.

@@ -9,6 +9,7 @@
  *   ├── commands/       # Slash commands
  *   ├── agents/         # Multi-agent pipeline agents
  *   ├── hooks/          # Context injection hooks
+ *   ├── rules/          # Behavioral rules (.mdc files)
  *   └── settings.json   # Settings configuration
  */
 
@@ -55,6 +56,14 @@ export interface AgentTemplate {
  */
 export interface HookTemplate {
   targetPath: string;
+  content: string;
+}
+
+/**
+ * Rule template with name and content
+ */
+export interface RuleTemplate {
+  name: string;
   content: string;
 }
 
@@ -109,6 +118,22 @@ export function getAllHooks(): HookTemplate[] {
   }
 
   return hooks;
+}
+
+/**
+ * Get all rule templates
+ */
+export function getAllRules(): RuleTemplate[] {
+  const rules: RuleTemplate[] = [];
+  const files = listFiles("rules");
+
+  for (const file of files) {
+    const name = file;
+    const content = readTemplate(`rules/${file}`);
+    rules.push({ name, content });
+  }
+
+  return rules;
 }
 
 /**

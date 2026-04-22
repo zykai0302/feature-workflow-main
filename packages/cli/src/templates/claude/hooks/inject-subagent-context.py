@@ -339,8 +339,7 @@ def get_check_context(repo_root: str, task_dir: str) -> str:
         check_files = [
             (".claude/commands/feature/finish-work.md", "Finish work checklist"),
             (".claude/commands/feature/check-cross-layer.md", "Cross-layer check spec"),
-            (".claude/commands/feature/check-backend.md", "Backend check spec"),
-            (".claude/commands/feature/check-frontend.md", "Frontend check spec"),
+            (".claude/commands/feature/check.md", "Check spec"),
         ]
         for file_path, description in check_files:
             content = read_file_content(repo_root, file_path)
@@ -432,8 +431,7 @@ def get_debug_context(repo_root: str, task_dir: str) -> str:
             context_parts.append(f"=== {file_path} (Dev spec) ===\n{content}")
 
         check_files = [
-            (".claude/commands/feature/check-backend.md", "Backend check spec"),
-            (".claude/commands/feature/check-frontend.md", "Frontend check spec"),
+            (".claude/commands/feature/check.md", "Check spec"),
             (".claude/commands/feature/check-cross-layer.md", "Cross-layer check spec"),
         ]
         for file_path, description in check_files:

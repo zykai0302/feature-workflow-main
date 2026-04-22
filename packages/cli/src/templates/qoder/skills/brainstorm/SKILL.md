@@ -1,9 +1,16 @@
-﻿---
+---
 name: brainstorm
-description: "Brainstorm - Requirements Discovery (AI Coding Enhanced)"
+description: |
+  需求发现skill，在实现之前进行协作式需求澄清，针对AI编码工作流优化：
+  (1) 任务优先 - 立即捕获想法；(2) 先行动后询问 - 减少低价值问题；
+  (3) 技术选择先研究 - 避免让用户发明选项；(4) 发散→收敛 - 扩展思考后锁定MVP。
+  核心原则包括：确保任务存在、一次只问一个问题、优先提供具体选项、使用GitNexus MCP工具进行研究。
+  用于处理需求不明确、有多种实现路径、需要权衡取舍（UX、可靠性、可维护性、成本、性能）的复杂任务。
 ---
 
 # Brainstorm - Requirements Discovery (AI Coding Enhanced)
+
+Before running this skill, read `reference/workflow-context.md`. Reuse any unchanged task, workflow, or spec context already loaded in the current task session.
 
 Guide AI through collaborative requirements discovery **before implementation**, optimized for AI coding workflows:
 
@@ -16,7 +23,7 @@ Guide AI through collaborative requirements discovery **before implementation**,
 
 ## When to Use
 
-Triggered from `$start` when the user describes a development task, especially when:
+Triggered from `/start-task` when the user describes a development task, especially when:
 
 * requirements are unclear or evolving
 * there are multiple valid implementation paths
@@ -41,6 +48,8 @@ Triggered from `$start` when the user describes a development task, especially w
 
 5. **Research-first for technical choices**
    If the decision depends on industry conventions / similar tools / established patterns, do research first, then propose options.
+   
+   **Priority**: Always perform research using GitNexus MCP tools (mcp__gitnexus__*) in Step 1 - they're faster and better integrated than CLI. This research happens DURING brainstorm, before asking technical questions.
 
 6. **Diverge → Converge**
    After initial understanding, proactively consider future evolution, related scenarios, and failure/edge cases — then converge to an MVP with explicit out-of-scope.
@@ -115,7 +124,53 @@ Create/seed `prd.md` immediately with what you know:
 
 Before asking questions like "what does the code look like?", gather context yourself:
 
-### Repo inspection checklist
+### Priority: GitNexus Knowledge Graph (MCP)
+
+**Check for GitNexus MCP server first** (highest priority):
+
+GitNexus MCP tools are already integrated in CodeBuddy. Use them for research:
+
+**Available MCP Tools**:
+
+- `mcp__gitnexus__list_repos` - List all indexed repositories
+- `mcp__gitnexus__query` - Query code structure and patterns (semantic + keyword search)
+- `mcp__gitnexus__context` - Get 360-degree view of a symbol (callers, callees, processes)
+- `mcp__gitnexus__impact` - Analyze blast radius of changes
+- `mcp__gitnexus__detect_changes` - Detect uncommitted changes and affected flows
+- `mcp__gitnexus__cypher` - Execute Cypher queries for advanced analysis
+
+**Usage Pattern**:
+
+```markdown
+1. Check if repository is indexed: mcp__gitnexus__list_repos
+2. Query for similar implementations: mcp__gitnexus__query with concept
+3. Get detailed context: mcp__gitnexus__context on key symbols
+4. Analyze impact: mcp__gitnexus__impact before major changes
+```
+
+**Advantages of using GitNexus MCP**:
+
+- Pre-indexed knowledge graph of the entire codebase
+- Fast semantic search across all files
+- Understanding of call chains, dependencies, and execution flows
+- Cluster analysis for similar implementations
+- Integrated with AI workflow (no CLI overhead)
+- Persistent server with better performance
+
+**Fallback: When GitNexus is Not Available**
+
+If GitNexus MCP is not installed, not indexed for this repo, or returns no results:
+
+1. Use standard CodeBuddy tools instead:
+   
+   - `search_file` - Pattern-based file discovery
+   - `search_content` - Text/regex search across files
+   - `read_file` - Direct file inspection
+   - `list_dir` - Directory structure exploration
+
+2. Then proceed with traditional repo inspection checklist below.
+
+### Repo inspection checklist (Primary when GitNexus unavailable)
 
 * Identify likely modules/files impacted
 * Locate existing patterns (similar features, conventions, error handling style)
@@ -136,12 +191,12 @@ Write findings into PRD:
 
 ## Step 2: Classify Complexity (still useful, not gating task creation)
 
-| Complexity   | Criteria                                               | Action                                      |
-| ------------ | ------------------------------------------------------ | ------------------------------------------- |
-| **Trivial**  | Single-line fix, typo, obvious change                  | Skip brainstorm, implement directly         |
-| **Simple**   | Clear goal, 1–2 files, scope well-defined              | Ask 1 confirm question, then implement      |
-| **Moderate** | Multiple files, some ambiguity                         | Light brainstorm (2–3 high-value questions) |
-| **Complex**  | Vague goal, architectural choices, multiple approaches | Full brainstorm                             |
+|| Complexity   | Criteria                                               | Action                                      |
+|| ------------ | ------------------------------------------------------ | ------------------------------------------- |
+|| **Trivial**  | Single-line fix, typo, obvious change                  | Skip brainstorm, implement directly         |
+|| **Simple**   | Clear goal, 1–2 files, scope well-defined              | Ask 1 confirm question, then implement      |
+|| **Moderate** | Multiple files, some ambiguity                         | Light brainstorm (2–3 high-value questions) |
+|| **Complex**  | Vague goal, architectural choices, multiple approaches | Full brainstorm                             |
 
 > Note: Task already exists from Step 0. Classification only affects depth of brainstorming.
 
@@ -244,17 +299,17 @@ After you can summarize the goal, proactively broaden thinking before converging
 ### Expansion categories (keep to 1–2 bullets each)
 
 1. **Future evolution**
-
+   
    * What might this feature become in 1–3 months?
    * What extension points are worth preserving now?
 
 2. **Related scenarios**
-
+   
    * What adjacent commands/flows should remain consistent with this?
    * Are there parity expectations (create vs update, import vs export, etc.)?
 
 3. **Failure & edge cases**
-
+   
    * Conflicts, offline/network failure, retries, idempotency, compatibility, rollback
    * Input validation, security boundaries, permission checks
 
@@ -289,9 +344,11 @@ Then update PRD:
 ### Rules
 
 * One question per message
-* Prefer multiple-choice when possible
-* After each user answer:
 
+* Prefer multiple-choice when possible
+
+* After each user answer:
+  
   * Update PRD immediately
   * Move answered items from `Open Questions` → `Requirements`
   * Update `Acceptance Criteria` with testable checkboxes
@@ -351,7 +408,7 @@ Record the outcome in PRD as an ADR-lite section:
 
 ---
 
-## Step 8: Final Confirmation + Implementation Plan
+## Step 8: Final Confirmation + Human Validation
 
 When open questions are resolved, confirm complete requirements with a structured summary:
 
@@ -390,6 +447,50 @@ Here's my understanding of the complete requirements:
 * PR3: <edge cases + docs + cleanup>
 
 Does this look correct? If yes, I'll proceed with implementation.
+```
+
+### Human Validation Gate (Required)
+
+After generating `prd.md`, **WAIT for user confirmation**:
+
+**Success path:**
+
+- User confirms PRD is accurate
+
+- Update `task.json` status to `"brainstorming"`
+
+- Add `"prd.md"` to `artifacts` array
+
+- **Display the next handoff only:**
+  
+  ```
+  ✓ PRD validated
+  Next command: /init-plan
+  Run it manually.
+  ```
+
+**Failure path:**
+
+- User indicates PRD is inaccurate or incomplete
+- Keep `task.json` status as `"started"`
+- Return to Step 6 (Q&A Loop) to clarify requirements
+- Update PRD with corrections
+- Repeat validation gate
+
+### Update task.json
+
+After successful PRD validation:
+
+Update `.feature/tasks/<task>/task.json` so it records the validated PRD state.
+
+Resulting `task.json`:
+
+```json
+{
+  "status": "brainstorming",
+  "artifacts": ["prd.md"],
+  "prdValidated": true
+}
 ```
 
 ### Subtask Decomposition (Complex Tasks)
@@ -475,6 +576,10 @@ Task Workflow Phase 2 (Prepare for Implementation)
   → Configure code-spec context (jsonl files)
   → Activate task
   ↓
+Task Workflow Phase 2.5 (Test Case Generation, mandatory for complex tasks)
+  /write-testcase → Generate test cases
+  /check-testcase → Verify test case completeness
+  ↓
 Task Workflow Phase 3 (Execute)
   Implement → Check → Complete
 ```
@@ -485,8 +590,22 @@ The task directory and PRD already exist from brainstorm, so Phase 1 of the Task
 
 ## Related Commands
 
-| Command | When to Use |
-|---------|-------------|
-| `$start` | Entry point that triggers brainstorm |
-| `$finish-work` | After implementation is complete |
-| `$update-spec` | If new patterns emerge during work |
+|| Command                | When to Use                                                                                      |
+|| ---------------------- | ------------------------------------------------------------------------------------------------ |
+|| `/start-task`       | Entry point that triggers brainstorm                                                             |
+|| `/research`    | Formal codebase research using GitNexus and other tools (call before asking technical questions) |
+|| `/init-plan`   | Initialize task memory files after PRD is confirmed                                              |
+|| `/finish-work` | After implementation is complete                                                                 |
+|| `/update-spec` | If new patterns emerge during work                                                               |
+
+---
+
+## Next Step
+
+After brainstorming and PRD validation, hand off to the next command:
+
+```
+✓ Brainstorm completed (PRD confirmed)
+Next command: /init-plan
+Run it manually.
+```

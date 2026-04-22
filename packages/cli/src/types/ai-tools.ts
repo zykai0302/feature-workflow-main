@@ -162,7 +162,7 @@ export const AI_TOOLS: Record<AITool, AIToolConfig> = {
     configDir: ".qoder",
     cliFlag: "qoder",
     defaultChecked: false,
-    hasPythonHooks: false,
+    hasPythonHooks: true,
   },
   codebuddy: {
     name: "CodeBuddy",
