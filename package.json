@@ -1,0 +1,18 @@
+{
+  "private": true,
+  "scripts": {
+    "prepare": "husky",
+    "build": "pnpm --filter @uniview/feature build",
+    "test": "pnpm --filter @uniview/feature test",
+    "lint": "pnpm --filter @uniview/feature lint",
+    "typecheck": "pnpm --filter @uniview/feature typecheck",
+    "release": "pnpm --filter @uniview/feature release",
+    "release:minor": "pnpm --filter @uniview/feature release:minor",
+    "release:beta": "pnpm --filter @uniview/feature release:beta",
+    "release:rc": "pnpm --filter @uniview/feature release:rc"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7"
+  }
+}

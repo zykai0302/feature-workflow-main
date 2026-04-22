@@ -1,0 +1,2592 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feature 工作流培训</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 60px;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: auto;
+        }
+
+        .slide.prev {
+            transform: translateX(-100%);
+        }
+
+        /* Title Slide */
+        .slide-title {
+            text-align: center;
+        }
+
+        .slide-title h1 {
+            font-size: 4rem;
+            color: #fff;
+            margin-bottom: 20px;
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 20px rgba(0, 212, 255, 0.5); }
+            to { text-shadow: 0 0 40px rgba(0, 212, 255, 0.8), 0 0 60px rgba(0, 212, 255, 0.4); }
+        }
+
+        .slide-title .subtitle {
+            font-size: 1.5rem;
+            color: #00d4ff;
+            margin-bottom: 40px;
+        }
+
+        .slide-title .tagline {
+            font-size: 1.2rem;
+            color: #a0a0a0;
+        }
+
+        /* Content Slides */
+        .slide h2 {
+            font-size: 2.2rem;
+            color: #00d4ff;
+            margin-bottom: 30px;
+            text-align: center;
+            border-bottom: 2px solid #00d4ff;
+            padding-bottom: 10px;
+        }
+
+        .content-box {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            width: 95%;
+            max-width: 1300px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        /* Problem List */
+        .problem-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .problem-item {
+            background: rgba(255, 77, 77, 0.1);
+            border-left: 4px solid #ff4d4d;
+            padding: 15px;
+            border-radius: 10px;
+            animation: fadeInUp 0.5s ease forwards;
+            opacity: 0;
+        }
+
+        .slide.active .problem-item:nth-child(1) { animation-delay: 0.1s; }
+        .slide.active .problem-item:nth-child(2) { animation-delay: 0.2s; }
+        .slide.active .problem-item:nth-child(3) { animation-delay: 0.3s; }
+        .slide.active .problem-item:nth-child(4) { animation-delay: 0.4s; }
+        .slide.active .problem-item:nth-child(5) { animation-delay: 0.5s; }
+        .slide.active .problem-item:nth-child(6) { animation-delay: 0.6s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .problem-item h3 {
+            color: #ff6b6b;
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+
+        .problem-item p {
+            color: #ccc;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        /* Flow Diagram */
+        .flow-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 15px;
+        }
+
+        .flow-item {
+            background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .flow-arrow {
+            color: #00d4ff;
+            font-size: 1.2rem;
+        }
+
+        /* Skills Grid */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .skill-card {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2) 0%, rgba(0, 153, 204, 0.1) 100%);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .skill-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .skill-card .phase {
+            color: #00d4ff;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .skill-card .command {
+            color: #fff;
+            font-size: 0.95rem;
+            font-family: 'Consolas', monospace;
+            margin-bottom: 5px;
+        }
+
+        .skill-card .desc {
+            color: #aaa;
+            font-size: 0.75rem;
+        }
+
+        /* Workflow Steps */
+        .workflow-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .workflow-step {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .workflow-step:hover {
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .step-number {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content h4 {
+            color: #fff;
+            margin-bottom: 4px;
+            font-size: 0.95rem;
+        }
+
+        .step-content p {
+            color: #aaa;
+            font-size: 0.85rem;
+        }
+
+        .step-content code {
+            background: rgba(0, 212, 255, 0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #00d4ff;
+            font-family: 'Consolas', monospace;
+            font-size: 0.85rem;
+        }
+
+        /* Directory Tree */
+        .dir-tree {
+            font-family: 'Consolas', 'Courier New', monospace;
+            color: #00d4ff;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            white-space: pre;
+            overflow-x: auto;
+        }
+
+        .dir-tree .folder {
+            color: #ffd700;
+        }
+
+        .dir-tree .file {
+            color: #98fb98;
+        }
+
+        .dir-tree .comment {
+            color: #888;
+        }
+
+        /* Navigation */
+        .nav-controls {
+            position: fixed;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            background: rgba(0, 212, 255, 0.2);
+            border: 1px solid #00d4ff;
+            color: #00d4ff;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: #00d4ff;
+            color: #1a1a2e;
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #00d4ff, #0099cc);
+            transition: width 0.3s ease;
+            z-index: 100;
+        }
+
+        /* Slide Counter */
+        .slide-counter {
+            position: fixed;
+            top: 15px;
+            right: 25px;
+            color: #666;
+            font-size: 0.9rem;
+            z-index: 100;
+        }
+
+        /* Advantages */
+        .advantages-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .advantage-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 15px;
+            background: rgba(0, 212, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(0, 212, 255, 0.1);
+        }
+
+        .advantage-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .advantage-text h4 {
+            color: #fff;
+            margin-bottom: 5px;
+            font-size: 0.95rem;
+        }
+
+        .advantage-text p {
+            color: #aaa;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        /* Code Block */
+        .code-block {
+            background: #0d1117;
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        .code-block .keyword {
+            color: #ff7b72;
+        }
+
+        .code-block .string {
+            color: #a5d6ff;
+        }
+
+        .code-block .comment {
+            color: #8b949e;
+        }
+
+        .code-block .command {
+            color: #7ee787;
+        }
+
+        /* Thank You Slide */
+        .slide-thankyou {
+            text-align: center;
+        }
+
+        .slide-thankyou h1 {
+            font-size: 4rem;
+            color: #00d4ff;
+            margin-bottom: 25px;
+        }
+
+        .slide-thankyou p {
+            color: #aaa;
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+        }
+
+        /* Table Style */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 0.9rem;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .data-table th {
+            color: #00d4ff;
+            font-weight: 600;
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .data-table td {
+            color: #ccc;
+        }
+
+        /* Keyboard hint */
+        .keyboard-hint {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #666;
+            font-size: 0.85rem;
+            z-index: 100;
+        }
+
+        .keyboard-hint kbd {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin: 0 3px;
+        }
+
+        /* Task Type Cards */
+        .task-types {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .task-type-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            width: 280px;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .task-type-card.simple {
+            border-color: #ffc107;
+        }
+
+        .task-type-card.medium {
+            border-color: #ff9800;
+        }
+
+        .task-type-card.complex {
+            border-color: #00d4ff;
+        }
+
+        .task-type-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+        }
+
+        .task-type-card.simple h3 { color: #ffc107; }
+        .task-type-card.medium h3 { color: #ff9800; }
+        .task-type-card.complex h3 { color: #00d4ff; }
+
+        .task-type-card p {
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .task-type-card ul {
+            text-align: left;
+            color: #ccc;
+            font-size: 0.85rem;
+            list-style: none;
+        }
+
+        .task-type-card ul li {
+            padding: 5px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .task-type-card ul li::before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: #00d4ff;
+        }
+
+        /* Solution Track */
+        .solution-tracks {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .track-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .track-card h4 {
+            color: #00d4ff;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .track-card ul {
+            list-style: none;
+            color: #ccc;
+            font-size: 0.9rem;
+        }
+
+        .track-card ul li {
+            padding: 5px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .track-card ul li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4CAF50;
+        }
+
+        /* Product Types */
+        .product-types {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .product-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .product-card h4 {
+            color: #00d4ff;
+            margin-bottom: 10px;
+        }
+
+        .product-card p {
+            color: #aaa;
+            font-size: 0.85rem;
+        }
+
+        /* Review Dimensions */
+        .review-dimensions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .dimension-card {
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .dimension-card h4 {
+            color: #00d4ff;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .dimension-card p {
+            color: #aaa;
+            font-size: 0.8rem;
+        }
+
+        h3 {
+            color: #fff;
+            margin: 20px 0 15px;
+            font-size: 1.1rem;
+        }
+
+        /* Table of Contents Sidebar */
+        .toc-sidebar {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 380px;
+            height: 100vh;
+            background: rgba(26, 26, 46, 0.98);
+            backdrop-filter: blur(20px);
+            border-left: 1px solid rgba(0, 212, 255, 0.3);
+            z-index: 200;
+            transition: right 0.3s ease;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .toc-sidebar.open {
+            right: 0;
+        }
+
+        .toc-sidebar h3 {
+            color: #00d4ff;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toc-close {
+            background: none;
+            border: none;
+            color: #00d4ff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+            line-height: 1;
+        }
+
+        .toc-close:hover {
+            color: #fff;
+        }
+
+        .toc-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .toc-list li {
+            padding: 8px 12px;
+            margin: 4px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #aaa;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toc-list li:hover {
+            background: rgba(0, 212, 255, 0.1);
+            color: #fff;
+        }
+
+        .toc-list li.active {
+            background: rgba(0, 212, 255, 0.2);
+            color: #00d4ff;
+        }
+
+        .toc-list li .toc-num {
+            width: 28px;
+            height: 28px;
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .toc-list li.active .toc-num {
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            color: #fff;
+        }
+
+        .toc-list li .toc-title {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .toc-section {
+            margin-bottom: 15px;
+        }
+
+        .toc-section-title {
+            color: #666;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 5px 12px;
+            margin-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .toc-section:first-child .toc-section-title {
+            border-top: none;
+            margin-top: 0;
+        }
+
+        /* TOC Toggle Button */
+        .toc-toggle {
+            position: fixed;
+            top: 15px;
+            left: 25px;
+            background: rgba(0, 212, 255, 0.2);
+            border: 1px solid #00d4ff;
+            color: #00d4ff;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            z-index: 150;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .toc-toggle:hover {
+            background: #00d4ff;
+            color: #1a1a2e;
+        }
+
+        /* Overlay */
+        .toc-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 199;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .toc-overlay.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Skill Detail Page */
+        .skill-detail-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .skill-detail-header .command-name {
+            font-size: 2.5rem;
+            color: #00d4ff;
+            font-family: 'Consolas', monospace;
+            margin-bottom: 10px;
+        }
+
+        .skill-detail-header .command-desc {
+            color: #aaa;
+            font-size: 1.1rem;
+        }
+
+        .three-column {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .column-box {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid rgba(0, 212, 255, 0.1);
+        }
+
+        .column-box h4 {
+            color: #00d4ff;
+            margin-bottom: 12px;
+            font-size: 1rem;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .column-box ul {
+            list-style: none;
+            color: #ccc;
+            font-size: 0.85rem;
+        }
+
+        .column-box ul li {
+            padding: 6px 0;
+            padding-left: 18px;
+            position: relative;
+            line-height: 1.4;
+        }
+
+        .column-box ul li::before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: #00d4ff;
+        }
+
+        .faq-box {
+            margin-top: 20px;
+        }
+
+        .faq-item {
+            background: rgba(255, 193, 7, 0.05);
+            border-left: 3px solid #ffc107;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .faq-item .question {
+            color: #ffc107;
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .faq-item .answer {
+            color: #ccc;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .example-box {
+            background: rgba(76, 175, 80, 0.05);
+            border-left: 3px solid #4CAF50;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .example-box .label {
+            color: #4CAF50;
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .example-box .content {
+            color: #ccc;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        /* Flow Step for Detail */
+        .flow-step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 8px 0;
+        }
+
+        .flow-step-num {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 0.85rem;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .flow-step-text {
+            color: #ccc;
+            font-size: 0.9rem;
+        }
+
+        .file-tag {
+            display: inline-block;
+            background: rgba(0, 212, 255, 0.2);
+            color: #00d4ff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.8rem;
+            margin: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="slide-counter" id="slideCounter">1 / 32</div>
+    
+    <!-- TOC Toggle Button -->
+    <button class="toc-toggle" onclick="toggleTOC()" title="按 T 键切换目录">
+        📑 目录 <kbd style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem;">T</kbd>
+    </button>
+    
+    <!-- TOC Overlay -->
+    <div class="toc-overlay" id="tocOverlay" onclick="toggleTOC()"></div>
+    
+    <!-- TOC Sidebar -->
+    <div class="toc-sidebar" id="tocSidebar">
+        <h3>
+            <span>📑 目录导航</span>
+            <button class="toc-close" onclick="toggleTOC()">×</button>
+        </h3>
+        <ul class="toc-list" id="tocList">
+            <!-- 动态生成 -->
+        </ul>
+    </div>
+
+    <div class="presentation">
+        <!-- Slide 1: Title -->
+        <div class="slide slide-title active" data-slide="1">
+            <h1>Feature 工作流</h1>
+            <div class="subtitle">AI 辅助开发工作流培训</div>
+            <div class="tagline">持久化任务记忆 + 结构化工作流 + 知识沉淀</div>
+        </div>
+
+        <!-- Slide 2: Background Problems -->
+        <div class="slide" data-slide="2">
+            <h2>当前开发流程存在的问题</h2>
+            <div class="content-box">
+                <div class="problem-list">
+                    <div class="problem-item">
+                        <h3>❌ 无工程级 spec 规约文档</h3>
+                        <p>缺少统一的规范文档，且无更新 spec 规约流程</p>
+                    </div>
+                    <div class="problem-item">
+                        <h3>❌ 特性流程无记忆功能</h3>
+                        <p>中断后无法恢复，需要重新描述上下文</p>
+                    </div>
+                    <div class="problem-item">
+                        <h3>❌ 需求澄清不够精准</h3>
+                        <p>需要多轮头脑风暴才能明确需求</p>
+                    </div>
+                    <div class="problem-item">
+                        <h3>❌ 测试用例未更新需求</h3>
+                        <p>导致方案遗漏，需求与测试不一致</p>
+                    </div>
+                    <div class="problem-item">
+                        <h3>❌ AI 问题反复</h3>
+                        <p>没有经验沉淀，无知识复用机制</p>
+                    </div>
+                    <div class="problem-item">
+                        <h3>❌ 无文档归档流程</h3>
+                        <p>缺少完整的任务闭环</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Core Concept -->
+        <div class="slide" data-slide="3">
+            <h2>核心理念</h2>
+            <div class="content-box">
+                <div class="flow-container">
+                    <div class="flow-item">用户需求</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item">任务分类</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item">规范加载</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item">计划执行</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item">质量检查</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item">经验沉淀</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item">知识复用</div>
+                </div>
+                <h3>设计原则</h3>
+                <table class="data-table">
+                    <tr>
+                        <th>原则</th>
+                        <th>说明</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Read Before Write</strong></td>
+                        <td>先理解代码上下文，再动手修改</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Follow Standards</strong></td>
+                        <td>遵循项目规范，确保一致性</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Task Memory</strong></td>
+                        <td>任务状态持久化，支持中断恢复</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Knowledge Compound</strong></td>
+                        <td>解决方案文档化，形成可复用知识库</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Slide 4: Skills Overview -->
+        <div class="slide" data-slide="4">
+            <h2>Skills 命令体系</h2>
+            <div class="content-box">
+                <div class="skills-grid">
+                    <div class="skill-card">
+                        <div class="phase">启动</div>
+                        <div class="command">/start-task</div>
+                        <div class="desc">初始化会话，任务分类</div>
+                    </div>
+                    <div class="skill-card">
+                        <div class="phase">澄清</div>
+                        <div class="command">/brainstorm</div>
+                        <div class="desc">需求澄清，生成 PRD</div>
+                    </div>
+                    <div class="skill-card">
+                        <div class="phase">初始化</div>
+                        <div class="command">/init-plan</div>
+                        <div class="desc">创建任务目录和三文件</div>
+                    </div>
+                    <div class="skill-card">
+                        <div class="phase">研究</div>
+                        <div class="command">/research</div>
+                        <div class="desc">代码库调研</div>
+                    </div>
+                    <div class="skill-card">
+                        <div class="phase">准备</div>
+                        <div class="command">/before-dev</div>
+                        <div class="desc">加载开发规范</div>
+                    </div>
+                    <div class="skill-card">
+                        <div class="phase">计划</div>
+                        <div class="command">/write-plan</div>
+                        <div class="desc">生成实施计划</div>
+                    </div>
+                    <div class="skill-card">
+                        <div class="phase">测试</div>
+                        <div class="command">/write-testcase</div>
+                        <div class="desc">生成测试用例</div>
+                    </div>
+                    <div class="skill-card">
+                        <div class="phase">验证</div>
+                        <div class="command">/check-testcase</div>
+                        <div class="desc">验证测试完整性</div>
+                    </div>
+                    <div class="skill-card">
+                        <div class="phase">执行</div>
+                        <div class="command">/executing-plans</div>
+                        <div class="desc">顺序执行计划</div>
+                    </div>
+                    <div class="skill-card">
+                        <div class="phase">执行</div>
+                        <div class="command">/subagent-work</div>
+                        <div class="desc">子代理执行</div>
+                    </div>
+                    <div class="skill-card">
+                        <div class="phase">分析</div>
+                        <div class="command">/impact</div>
+                        <div class="desc">影响范围分析</div>
+                    </div>
+                    <div class="skill-card">
+                        <div class="phase">检查</div>
+                        <div class="command">/check</div>
+                        <div class="desc">开发自检</div>
+                    </div>
+                    <div class="skill-card">
+                        <div class="phase">评审</div>
+                        <div class="command">/review</div>
+                        <div class="desc">正式多维度评审</div>
+                    </div>
+                    <div class="skill-card">
+                        <div class="phase">收尾</div>
+                        <div class="command">/finish-work</div>
+                        <div class="desc">交付物校验</div>
+                    </div>
+                    <div class="skill-card">
+                        <div class="phase">沉淀</div>
+                        <div class="command">/compound</div>
+                        <div class="desc">创建解决方案文档</div>
+                    </div>
+                    <div class="skill-card">
+                        <div class="phase">归档</div>
+                        <div class="command">/record-session</div>
+                        <div class="desc">记录会话归档</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Task Classification -->
+        <div class="slide" data-slide="5">
+            <h2>任务分类处理</h2>
+            <div class="content-box">
+                <div class="task-types">
+                    <div class="task-type-card simple">
+                        <h3>简单问题</h3>
+                        <p>直接回答或轻量修改</p>
+                        <ul>
+                            <li>代码咨询</li>
+                            <li>简单解释</li>
+                            <li>快速修复</li>
+                        </ul>
+                    </div>
+                    <div class="task-type-card medium">
+                        <h3>简单任务</h3>
+                        <p>轻量流程处理</p>
+                        <ul>
+                            <li>小功能添加</li>
+                            <li>配置修改</li>
+                            <li>简单重构</li>
+                        </ul>
+                    </div>
+                    <div class="task-type-card complex">
+                        <h3>复杂任务</h3>
+                        <p>完整流程处理</p>
+                        <ul>
+                            <li>新功能开发</li>
+                            <li>系统重构</li>
+                            <li>跨模块改造</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6-21: Each Skill Detail -->
+        <!-- Slide 6: /start-task -->
+        <div class="slide" data-slide="6">
+            <div class="skill-detail-header">
+                <div class="command-name">/start-task</div>
+                <div class="command-desc">初始化会话，读取项目上下文，判断任务类型，路由到后续 Skill</div>
+            </div>
+            <div class="content-box">
+                <div class="three-column">
+                    <div class="column-box">
+                        <h4>📋 处理流程</h4>
+                        <ul>
+                            <li>读取 workflow.md 获取工作流上下文</li>
+                            <li>获取当前 developer 信息</li>
+                            <li>获取 Git 状态（status/log）</li>
+                            <li>检查活动任务列表</li>
+                            <li>判断任务类型：简单问题/简单任务/复杂任务</li>
+                            <li>路由到对应后续 Skill</li>
+                        </ul>
+                    </div>
+                    <div class="column-box">
+                        <h4>❓ 常见问题</h4>
+                        <div class="faq-item">
+                            <div class="question">Q: 如何判断任务类型？</div>
+                            <div class="answer">A: 根据需求复杂度、是否涉及架构变更、是否需要多轮迭代来判断</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="question">Q: 任务中断后如何恢复？</div>
+                            <div class="answer">A: 再次运行 /start-task，会读取现有任务状态</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="question">Q: 影响哪些文件？</div>
+                            <div class="answer">A: 读取 workflow.md、.developer；创建 task.json（新任务）</div>
+                        </div>
+                    </div>
+                    <div class="column-box">
+                        <h4>💡 示例场景</h4>
+                        <div class="example-box">
+                            <div class="label">场景1：简单问题</div>
+                            <div class="content">"解释这个函数的作用" → 直接回答</div>
+                        </div>
+                        <div class="example-box">
+                            <div class="label">场景2：简单任务</div>
+                            <div class="content">"添加日志工具函数" → 路由到 /init-plan</div>
+                        </div>
+                        <div class="example-box">
+                            <div class="label">场景3：复杂任务</div>
+                            <div class="content">"实现用户认证系统" → 路由到 /brainstorm</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: /brainstorm -->
+        <div class="slide" data-slide="7">
+            <div class="skill-detail-header">
+                <div class="command-name">/brainstorm</div>
+                <div class="command-desc">对复杂任务进行需求澄清，生成 PRD 文档，对比方案，识别风险</div>
+            </div>
+            <div class="content-box">
+                <div class="three-column">
+                    <div class="column-box">
+                        <h4>📋 处理流程</h4>
+                        <ul>
+                            <li>创建或选择任务目录</li>
+                            <li>使用 GitNexus MCP 查询项目上下文</li>
+                            <li>查询代码结构和模式</li>
+                            <li>对架构选型给出 2-3 个方案</li>
+                            <li>收敛 MVP 范围</li>
+                            <li>定义验收标准</li>
+                            <li>识别风险点</li>
+                            <li>生成 prd.md</li>
+                            <li>等待人工校验 PRD</li>
+                        </ul>
+                    </div>
+                    <div class="column-box">
+                        <h4>❓ 常见问题</h4>
+                        <div class="faq-item">
+                            <div class="question">Q: PRD 不准确怎么办？</div>
+                            <div class="answer">A: 提供反馈后重新运行 /brainstorm</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="question">Q: 需要多少轮迭代？</div>
+                            <div class="answer">A: 通常 1-2 轮即可收敛</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="question">Q: 输出什么文件？</div>
+                            <div class="answer">A: <span class="file-tag">prd.md</span></div>
+                        </div>
+                    </div>
+                    <div class="column-box">
+                        <h4>💡 示例场景</h4>
+                        <div class="example-box">
+                            <div class="label">场景：用户认证系统</div>
+                            <div class="content">方案对比：JWT vs Session<br>MVP范围：登录、注册、权限检查<br>验收标准：功能完整、安全、性能达标<br>风险：密码存储、Token安全</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: /init-plan -->
+        <div class="slide" data-slide="8">
+            <div class="skill-detail-header">
+                <div class="command-name">/init-plan</div>
+                <div class="command-desc">作为轻量任务的工作流入口，创建或恢复任务目录、最小 PRD 和三文件工作记忆</div>
+            </div>
+            <div class="content-box">
+                <div class="three-column">
+                    <div class="column-box">
+                        <h4>📋 处理流程</h4>
+                        <ul>
+                            <li>检查 PRD 是否存在</li>
+                            <li>检查三文件是否存在</li>
+                            <li>创建 task_plan.md（任务计划）</li>
+                            <li>创建 findings.md（研究发现）</li>
+                            <li>创建 progress.md（进度记录）</li>
+                            <li>更新 task.json 状态为 planning</li>
+                        </ul>
+                    </div>
+                    <div class="column-box">
+                        <h4>❓ 常见问题</h4>
+                        <div class="faq-item">
+                            <div class="question">Q: 三文件是什么？</div>
+                            <div class="answer">A: task_plan.md（任务计划）、findings.md（研究发现）、progress.md（进度记录）</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="question">Q: 什么时候调用？</div>
+                            <div class="answer">A: 简单任务在 /start-task 后，复杂任务在 /brainstorm 后</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="question">Q: 输出什么文件？</div>
+                            <div class="answer">A: <span class="file-tag">prd.md</span> <span class="file-tag">task_plan.md</span> <span class="file-tag">findings.md</span> <span class="file-tag">progress.md</span></div>
+                        </div>
+                    </div>
+                    <div class="column-box">
+                        <h4>💡 示例场景</h4>
+                        <div class="example-box">
+                            <div class="label">场景：添加日志工具函数</div>
+                            <div class="content">简单任务流程：<br>/start-task → /init-plan → 直接实现</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: /research -->
+        <div class="slide" data-slide="9">
+            <div class="skill-detail-header">
+                <div class="command-name">/research</div>
+                <div class="command-desc">在编写实施计划前进行代码库调研，建立代码事实基线</div>
+            </div>
+            <div class="content-box">
+                <div class="three-column">
+                    <div class="column-box">
+                        <h4>📋 处理流程</h4>
+                        <ul>
+                            <li>检查 GitNexus 索引状态</li>
+                            <li>索引不可用则执行 analyze</li>
+                            <li>查询相似模块</li>
+                            <li>查看关键符号调用者</li>
+                            <li>查看被调用者关系</li>
+                            <li>查看所属流程</li>
+                            <li>预估改动范围 impact</li>
+                            <li>将结论写入 findings.md</li>
+                            <li>回写 prd.md 中的约束</li>
+                            <li>回写 task_plan.md 中的风险</li>
+                        </ul>
+                    </div>
+                    <div class="column-box">
+                        <h4>❓ 常见问题</h4>
+                        <div class="faq-item">
+                            <div class="question">Q: GitNexus 索引是什么？</div>
+                            <div class="answer">A: 代码知识图谱，包含调用关系、类继承、模块结构等</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="question">Q: 如何建立索引？</div>
+                            <div class="answer">A: 运行 npx gitnexus analyze</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="question">Q: 输出什么文件？</div>
+                            <div class="answer">A: 更新 <span class="file-tag">findings.md</span></div>
+                        </div>
+                    </div>
+                    <div class="column-box">
+                        <h4>💡 示例场景</h4>
+                        <div class="example-box">
+                            <div class="label">场景：用户认证系统调研</div>
+                            <div class="content">发现：现有用户模型结构<br>发现：权限系统已实现部分功能<br>发现：JWT 库版本过旧需升级<br>风险：数据库迁移影响范围大</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: /before-dev -->
+        <div class="slide" data-slide="10">
+            <div class="skill-detail-header">
+                <div class="command-name">/before-dev</div>
+                <div class="command-desc">读取相关规范，统一可执行上下文，确保开发准备就绪</div>
+            </div>
+            <div class="content-box">
+                <div class="three-column">
+                    <div class="column-box">
+                        <h4>📋 处理流程</h4>
+                        <ul>
+                            <li>检查三文件是否初始化</li>
+                            <li>未初始化则调用 /init-plan</li>
+                            <li>检查是否已做代码研究</li>
+                            <li>未研究则调用 /research</li>
+                            <li>读取 spec/&lt;package&gt;/&lt;layer&gt;/index.md</li>
+                            <li>读取 spec/guides/index.md</li>
+                            <li>读取前置开发检查清单</li>
+                            <li>明确本次涉及的模块</li>
+                            <li>明确必须遵守的 spec</li>
+                            <li>明确必须验证的风险点</li>
+                        </ul>
+                    </div>
+                    <div class="column-box">
+                        <h4>❓ 常见问题</h4>
+                        <div class="faq-item">
+                            <div class="question">Q: spec 文件在哪？</div>
+                            <div class="answer">A: .feature/spec/&lt;package&gt;/&lt;layer&gt;/index.md</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="question">Q: 简单任务需要吗？</div>
+                            <div class="answer">A: 可选，复杂任务必须执行</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="question">Q: 输出什么？</div>
+                            <div class="answer">A: 开发上下文就绪状态，更新 task.json</div>
+                        </div>
+                    </div>
+                    <div class="column-box">
+                        <h4>💡 示例场景</h4>
+                        <div class="example-box">
+                            <div class="label">场景：加载认证系统规范</div>
+                            <div class="content">读取：spec/backend/index.md<br>读取：spec/guides/security-guide.md<br>明确：必须使用 bcrypt 加密密码<br>明确：Token 有效期 24 小时</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: /write-plan -->
+        <div class="slide" data-slide="11">
+            <div class="skill-detail-header">
+                <div class="command-name">/write-plan</div>
+                <div class="command-desc">生成可执行的实施计划，按任务拆分到文件级别</div>
+            </div>
+            <div class="content-box">
+                <div class="three-column">
+                    <div class="column-box">
+                        <h4>📋 处理流程</h4>
+                        <ul>
+                            <li>读取 prd.md</li>
+                            <li>读取 findings.md</li>
+                            <li>读取相关 spec</li>
+                            <li>生成结构化实施计划</li>
+                            <li>为每个任务指定文件路径</li>
+                            <li>为每个任务定义测试动作</li>
+                            <li>为每个任务定义验证命令</li>
+                            <li>应用 TDD/YAGNI/DRY 原则</li>
+                            <li>生成 implementation-plan.md</li>
+                            <li>等待人工校验 Plan</li>
+                        </ul>
+                    </div>
+                    <div class="column-box">
+                        <h4>❓ 常见问题</h4>
+                        <div class="faq-item">
+                            <div class="question">Q: Plan 不准确怎么办？</div>
+                            <div class="answer">A: 返回 /brainstorm 重新分析需求</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="question">Q: 颗粒度如何？</div>
+                            <div class="answer">A: 拆分到文件级别，适合代理执行</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="question">Q: 输出什么文件？</div>
+                            <div class="answer">A: <span class="file-tag">implementation-plan.md</span></div>
+                        </div>
+                    </div>
+                    <div class="column-box">
+                        <h4>💡 示例场景</h4>
+                        <div class="example-box">
+                            <div class="label">场景：认证系统实施计划</div>
+                            <div class="content">Task1: 数据库迁移 → db/migrate/<br>Task2: 用户模型 → models/user.py<br>Task3: 认证API → api/auth.py<br>Task4: 前端登录页 → pages/login.vue<br>Task5: 权限中间件 → middleware/auth.py</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: /write-testcase -->
+        <div class="slide" data-slide="12">
+            <div class="skill-detail-header">
+                <div class="command-name">/write-testcase</div>
+                <div class="command-desc">基于任务文档生成标准化的功能测试用例，复杂任务必须执行</div>
+            </div>
+            <div class="content-box">
+                <div class="three-column">
+                    <div class="column-box">
+                        <h4>📋 处理流程</h4>
+                        <ul>
+                            <li>读取任务文档（prd、findings、plan）</li>
+                            <li>读取测试规范和模板</li>
+                            <li>识别产品类型（PK/HY/XF）</li>
+                            <li>生成需求分析报告</li>
+                            <li>设计测试用例</li>
+                            <li>生成 testcase_analysis.md</li>
+                            <li>生成 testcase.md</li>
+                            <li>更新 task.json</li>
+                        </ul>
+                    </div>
+                    <div class="column-box">
+                        <h4>❓ 常见问题</h4>
+                        <div class="faq-item">
+                            <div class="question">Q: 如何识别产品类型？</div>
+                            <div class="answer">A: 根据关键词自动识别，也可手动选择</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="question">Q: 产品类型有哪些？</div>
+                            <div class="answer">A: PK（屏控）、HY（会议）、XF（信发）</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="question">Q: 输出什么文件？</div>
+                            <div class="answer">A: <span class="file-tag">testcase_analysis.md</span> <span class="file-tag">testcase.md</span></div>
+                        </div>
+                    </div>
+                    <div class="column-box">
+                        <h4>💡 示例场景</h4>
+                        <div class="example-box">
+                            <div class="label">产品类型识别</div>
+                            <div class="content">PK: ADU/CDU/DMC/A9/KVM<br>HY: 会议平板/OPS/摄像头<br>XF: 信息发布平台/终端软件</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: /check-testcase -->
+        <div class="slide" data-slide="13">
+            <div class="skill-detail-header">
+                <div class="command-name">/check-testcase</div>
+                <div class="command-desc">基于产品类型验证测试用例完整性，补充遗漏测试点，更新任务文档</div>
+            </div>
+            <div class="content-box">
+                <div class="three-column">
+                    <div class="column-box">
+                        <h4>📋 处理流程</h4>
+                        <ul>
+                            <li>读取任务和测试文档</li>
+                            <li>确认产品类型</li>
+                            <li>读取产品规格和 Checklist</li>
+                            <li>筛选相关模块</li>
+                            <li>执行模块验证</li>
+                            <li>补充遗漏用例</li>
+                            <li>生成 testcase_checkdetail.md</li>
+                            <li>评估是否涉及新需求</li>
+                            <li>更新所有任务文档</li>
+                        </ul>
+                    </div>
+                    <div class="column-box">
+                        <h4>❓ 常见问题</h4>
+                        <div class="faq-item">
+                            <div class="question">Q: 发现新需求怎么办？</div>
+                            <div class="answer">A: 同步更新 prd.md、task_plan.md、implementation-plan.md</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="question">Q: 覆盖率要求？</div>
+                            <div class="answer">A: 建议覆盖率 >80%</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="question">Q: 输出什么文件？</div>
+                            <div class="answer">A: <span class="file-tag">testcase_checkdetail.md</span> + 更新所有任务文档</div>
+                        </div>
+                    </div>
+                    <div class="column-box">
+                        <h4>💡 示例场景</h4>
+                        <div class="example-box">
+                            <div class="label">场景：发现遗漏测试点</div>
+                            <div class="content">遗漏：Token过期处理测试<br>遗漏：并发登录限制测试<br>补充后覆盖率：85%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: /executing-plans -->
+        <div class="slide" data-slide="14">
+            <div class="skill-detail-header">
+                <div class="command-name">/executing-plans</div>
+                <div class="command-desc">在当前会话内按计划顺序推进，适合耦合较强的任务</div>
+            </div>
+            <div class="content-box">
+                <div class="three-column">
+                    <div class="column-box">
+                        <h4>📋 处理流程</h4>
+                        <ul>
+                            <li>读取 implementation-plan.md</li>
+                            <li>解析任务列表</li>
+                            <li>按顺序执行任务</li>
+                            <li>涉及重大修改时调用 /impact</li>
+                            <li>更新 task_plan.md</li>
+                            <li>更新 progress.md</li>
+                            <li>关键发现更新 findings.md</li>
+                            <li>完成所有任务后准备检查阶段</li>
+                        </ul>
+                    </div>
+                    <div class="column-box">
+                        <h4>❓ 常见问题</h4>
+                        <div class="faq-item">
+                            <div class="question">Q: 和 /subagent-work 的区别？</div>
+                            <div class="answer">A: executing-plans 在当前会话内执行；subagent-work 启动独立子代理</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="question">Q: 什么时候用？</div>
+                            <div class="answer">A: 任务耦合性强、需要实时交互时使用</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="question">Q: 输出什么？</div>
+                            <div class="answer">A: 代码修改 + 更新 progress.md</div>
+                        </div>
+                    </div>
+                    <div class="column-box">
+                        <h4>💡 示例场景</h4>
+                        <div class="example-box">
+                            <div class="label">场景：顺序实现认证系统</div>
+                            <div class="content">Task1 → Task2 → Task3 → ...<br>每个任务完成后更新 progress.md<br>发现问题时更新 findings.md</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: /subagent-work -->
+        <div class="slide" data-slide="15">
+            <div class="skill-detail-header">
+                <div class="command-name">/subagent-work</div>
+                <div class="command-desc">使用独立子代理执行任务，适合独立性强、需长时间自治开发的任务</div>
+            </div>
+            <div class="content-box">
+                <div class="three-column">
+                    <div class="column-box">
+                        <h4>📋 处理流程</h4>
+                        <ul>
+                            <li>读取 implementation-plan.md</li>
+                            <li>解析任务列表</li>
+                            <li>启动子代理执行任务</li>
+                            <li>Spec reviewer 检查 PRD 一致性</li>
+                            <li>Code quality reviewer 检查代码质量</li>
+                            <li>不合格则返回修复</li>
+                            <li>合格则进入下一任务</li>
+                            <li>更新 task_plan.md</li>
+                            <li>更新 progress.md</li>
+                        </ul>
+                    </div>
+                    <div class="column-box">
+                        <h4>❓ 常见问题</h4>
+                        <div class="faq-item">
+                            <div class="question">Q: 什么时候用？</div>
+                            <div class="answer">A: 任务独立性强、可以并行执行时使用</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="question">Q: 子代理是什么？</div>
+                            <div class="answer">A: 独立的 AI 会话，可以长时间自治开发</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="question">Q: 评审流程？</div>
+                            <div class="answer">A: Spec reviewer → Code quality reviewer</div>
+                        </div>
+                    </div>
+                    <div class="column-box">
+                        <h4>💡 示例场景</h4>
+                        <div class="example-box">
+                            <div class="label">场景：并行开发认证系统</div>
+                            <div class="content">子代理1：数据库迁移<br>子代理2：认证API<br>子代理3：前端登录页<br>子代理4：权限中间件</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16: /impact -->
+        <div class="slide" data-slide="16">
+            <div class="skill-detail-header">
+                <div class="command-name">/impact</div>
+                <div class="command-desc">在修改前评估影响范围，识别风险等级</div>
+            </div>
+            <div class="content-box">
+                <div class="three-column">
+                    <div class="column-box">
+                        <h4>📋 处理流程</h4>
+                        <ul>
+                            <li>识别目标符号</li>
+                            <li>执行 GitNexus impact 分析</li>
+                            <li>查看 upstream impact（直接调用者）</li>
+                            <li>查看相关 processes（执行流）</li>
+                            <li>计算 blast radius（影响范围）</li>
+                            <li>评估风险等级</li>
+                            <li>生成影响报告</li>
+                        </ul>
+                    </div>
+                    <div class="column-box">
+                        <h4>❓ 常见问题</h4>
+                        <div class="faq-item">
+                            <div class="question">Q: 风险等级有哪些？</div>
+                            <div class="answer">A: LOW（允许修改）、MEDIUM（需评审）、HIGH（需架构师批准）、CRITICAL（禁止修改）</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="question">Q: 什么时候运行？</div>
+                            <div class="answer">A: 修改公共函数、核心模块、基础组件前</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="question">Q: 输出什么？</div>
+                            <div class="answer">A: 影响范围报告 + 更新 task.json</div>
+                        </div>
+                    </div>
+                    <div class="column-box">
+                        <h4>💡 示例场景</h4>
+                        <div class="example-box">
+                            <div class="label">场景：修改用户模型</div>
+                            <div class="content">影响：15 个文件<br>调用者：AuthService, UserService, OrderService<br>风险等级：MEDIUM<br>建议：需要评审后修改</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 17: /check -->
+        <div class="slide" data-slide="17">
+            <div class="skill-detail-header">
+                <div class="command-name">/check</div>
+                <div class="command-desc">进行轻量到中度的质量检查，面向开发中场景</div>
+            </div>
+            <div class="content-box">
+                <div class="three-column">
+                    <div class="column-box">
+                        <h4>📋 处理流程</h4>
+                        <ul>
+                            <li>获取代码变更</li>
+                            <li>自动发现相关 spec 模块</li>
+                            <li>执行 lint 检查</li>
+                            <li>执行 type 检查</li>
+                            <li>执行单元测试</li>
+                            <li>检查规范对齐</li>
+                            <li>检查代码风格</li>
+                            <li>输出检查结果</li>
+                        </ul>
+                    </div>
+                    <div class="column-box">
+                        <h4>❓ 常见问题</h4>
+                        <div class="faq-item">
+                            <div class="question">Q: 和 /review 的区别？</div>
+                            <div class="answer">A: /check 是轻量自检，/review 是正式多维度评审</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="question">Q: 检查失败怎么办？</div>
+                            <div class="answer">A: 列出错误详情，修复后重新运行 /check</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="question">Q: 输出什么？</div>
+                            <div class="answer">A: 检查结果 + 更新 task.json（checkPassed）</div>
+                        </div>
+                    </div>
+                    <div class="column-box">
+                        <h4>💡 示例场景</h4>
+                        <div class="example-box">
+                            <div class="label">场景：认证系统自检</div>
+                            <div class="content">✓ Lint 检查通过<br>✓ Type 检查通过<br>✓ 单元测试通过（覆盖率 85%）<br>✓ 规范对齐通过</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tips-box" style="margin-top: 20px; background: linear-gradient(135deg, rgba(255, 193, 7, 0.15), rgba(255, 152, 0, 0.1)); border: 1px solid rgba(255, 193, 7, 0.4); border-radius: 12px; padding: 15px 20px; width: 100%;">
+                    <div style="color: #ffc107; font-weight: bold; margin-bottom: 8px; font-size: 1rem;">💡 最佳实践 Tips</div>
+                    <div style="color: #e0e0e0; font-size: 0.9rem; line-height: 1.8;">
+                        <strong>开发自检后建议切换模型进行正式评审：</strong><br>
+                        • 自检可由开发模型完成，确保基础质量<br>
+                        • 正式评审建议使用不同的模型，获得更客观的视角<br>
+                        • <strong>推荐组合：</strong>GLM-5.0 开发 + Kimi-K2.5 评审
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 18: /review -->
+        <div class="slide" data-slide="18">
+            <div class="skill-detail-header">
+                <div class="command-name">/review</div>
+                <div class="command-desc">进行多角色正式评审，包括正确性、可维护性、安全性等多个维度</div>
+            </div>
+            <div class="content-box">
+                <div class="three-column">
+                    <div class="column-box">
+                        <h4>📋 处理流程</h4>
+                        <ul>
+                            <li>收集评审材料</li>
+                            <li>代码变更</li>
+                            <li>PRD 文档</li>
+                            <li>spec 规范</li>
+                            <li>启动多角色评审</li>
+                            <li>correctness 检查</li>
+                            <li>maintainability 检查</li>
+                            <li>testing 检查</li>
+                            <li>security 检查</li>
+                            <li>performance 检查</li>
+                            <li>汇总评审结果</li>
+                        </ul>
+                    </div>
+                    <div class="column-box">
+                        <h4>❓ 常见问题</h4>
+                        <div class="faq-item">
+                            <div class="question">Q: 评审维度有哪些？</div>
+                            <div class="answer">A: 正确性、可维护性、测试覆盖、安全性、性能、规范对齐、影响范围、关联流程、文档完整</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="question">Q: 评审不通过怎么办？</div>
+                            <div class="answer">A: 返回执行阶段修复问题</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="question">Q: 输出什么？</div>
+                            <div class="answer">A: 评审报告 + 更新 task.json（reviewPassed）</div>
+                        </div>
+                    </div>
+                    <div class="column-box">
+                        <h4>💡 示例场景</h4>
+                        <div class="example-box">
+                            <div class="label">场景：认证系统评审</div>
+                            <div class="content">✓ 正确性：逻辑正确<br>✓ 安全性：密码哈希正确、Token 安全<br>✓ 测试覆盖：85%<br>⚠ 性能：登录接口需优化<br>→ 返回优化性能</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tips-box" style="margin-top: 20px; background: linear-gradient(135deg, rgba(255, 193, 7, 0.15), rgba(255, 152, 0, 0.1)); border: 1px solid rgba(255, 193, 7, 0.4); border-radius: 12px; padding: 15px 20px; width: 100%;">
+                    <div style="color: #ffc107; font-weight: bold; margin-bottom: 8px; font-size: 1rem;">💡 最佳实践 Tips</div>
+                    <div style="color: #e0e0e0; font-size: 0.9rem; line-height: 1.8;">
+                        <strong>推荐使用不同模型进行开发与评审：</strong><br>
+                        • <strong>开发阶段</strong>：使用 GLM-5.0 等模型进行代码编写<br>
+                        • <strong>评审阶段</strong>：使用 Kimi-K2.5 等不同模型进行独立评审<br>
+                        • 模型越强大，评审质量越高，交叉验证效果越好<br>
+                        • 也可以 <strong>CodeBuddy + Lingma</strong> 配合使用，同时打开同一工程，一个负责开发，一个负责评审
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 19: /finish-work -->
+        <div class="slide" data-slide="19">
+            <div class="skill-detail-header">
+                <div class="command-name">/finish-work</div>
+                <div class="command-desc">汇总完成条件，校验所有交付物，准备提交</div>
+            </div>
+            <div class="content-box">
+                <div class="three-column">
+                    <div class="column-box">
+                        <h4>📋 处理流程</h4>
+                        <ul>
+                            <li>检查 task_plan.md 所有 phase 是否完成</li>
+                            <li>检查 progress.md 是否记录测试结果</li>
+                            <li>检查 findings.md 是否沉淀关键结论</li>
+                            <li>执行 detect_changes 分析变更</li>
+                            <li>检查变更影响是否符合预期</li>
+                            <li>判断是否需要更新 spec</li>
+                            <li>检查交付文档完整性</li>
+                            <li>准备进入 compound 阶段</li>
+                        </ul>
+                    </div>
+                    <div class="column-box">
+                        <h4>❓ 常见问题</h4>
+                        <div class="faq-item">
+                            <div class="question">Q: 交付物包括哪些？</div>
+                            <div class="answer">A: 代码、PRD、实施计划、测试用例、文档等</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="question">Q: 什么时候更新 spec？</div>
+                            <div class="answer">A: 当解决方案揭示可复用规则时</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="question">Q: 不完整怎么办？</div>
+                            <div class="answer">A: 返回补充交付文档</div>
+                        </div>
+                    </div>
+                    <div class="column-box">
+                        <h4>💡 示例场景</h4>
+                        <div class="example-box">
+                            <div class="label">场景：认证系统收尾</div>
+                            <div class="content">✓ 所有功能完成<br>✓ 测试覆盖完整<br>✓ 文档更新（API文档、部署文档）<br>✓ 变更影响符合预期<br>→ 准备 /compound</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 20: /compound -->
+        <div class="slide" data-slide="20">
+            <div class="skill-detail-header">
+                <div class="command-name">/compound</div>
+                <div class="command-desc">复盘本轮工作，将解决方案文档化，沉淀到项目知识库</div>
+            </div>
+            <div class="content-box">
+                <div class="three-column">
+                    <div class="column-box">
+                        <h4>📋 处理流程</h4>
+                        <ul>
+                            <li>重读任务产物和代码变更</li>
+                            <li>识别最佳学习要点</li>
+                            <li>分类问题类型</li>
+                            <li>选择追踪轨道（Bug/Knowledge）</li>
+                            <li>读取 schema.yaml 验证字段</li>
+                            <li>搜索已有解决方案</li>
+                            <li>创建或更新解决方案文档</li>
+                            <li>判断是否揭示可复用规则</li>
+                            <li>可选更新 .feature/spec/</li>
+                        </ul>
+                    </div>
+                    <div class="column-box">
+                        <h4>❓ 常见问题</h4>
+                        <div class="faq-item">
+                            <div class="question">Q: Bug Track 和 Knowledge Track？</div>
+                            <div class="answer">A: Bug Track 用于 bug/错误/性能问题；Knowledge Track 用于最佳实践/工作流/指导</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="question">Q: 输出到哪里？</div>
+                            <div class="answer">A: .feature/solutions/&lt;category&gt;/&lt;filename&gt;.md</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="question">Q: 如何避免重复？</div>
+                            <div class="answer">A: 先搜索已有解决方案，有重叠则更新</div>
+                        </div>
+                    </div>
+                    <div class="column-box">
+                        <h4>💡 示例场景</h4>
+                        <div class="example-box">
+                            <div class="label">场景：沉淀认证系统经验</div>
+                            <div class="content">创建：solutions/security/auth-system.md<br>更新：spec/backend/auth-guide.md<br>更新：spec/guides/security-guide.md</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 21: /record-session -->
+        <div class="slide" data-slide="21">
+            <div class="skill-detail-header">
+                <div class="command-name">/record-session</div>
+                <div class="command-desc">记录会话内容和上下文，归档任务</div>
+            </div>
+            <div class="content-box">
+                <div class="three-column">
+                    <div class="column-box">
+                        <h4>📋 处理流程</h4>
+                        <ul>
+                            <li>记录 commit 信息</li>
+                            <li>记录 session 标题</li>
+                            <li>记录 session 摘要</li>
+                            <li>记录后续上下文</li>
+                            <li>追加到 journal 文件</li>
+                            <li>如超过 2000 行则创建新 journal</li>
+                            <li>更新 workspace index.md</li>
+                            <li>移动任务目录到 archive/</li>
+                            <li>更新 task.json 状态为 completed</li>
+                        </ul>
+                    </div>
+                    <div class="column-box">
+                        <h4>❓ 常见问题</h4>
+                        <div class="faq-item">
+                            <div class="question">Q: journal 文件在哪？</div>
+                            <div class="answer">A: .feature/workspace/&lt;developer&gt;/journal-N.md</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="question">Q: 归档到哪里？</div>
+                            <div class="answer">A: .feature/tasks/archive/&lt;year-month&gt;/&lt;task&gt;/</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="question">Q: 记录哪些内容？</div>
+                            <div class="answer">A: commit、标题、摘要、后续上下文</div>
+                        </div>
+                    </div>
+                    <div class="column-box">
+                        <h4>💡 示例场景</h4>
+                        <div class="example-box">
+                            <div class="label">场景：归档认证系统任务</div>
+                            <div class="content">记录：实现了用户认证和授权系统<br>归档：tasks/archive/2026-04/04-06-user-auth/<br>更新：workspace/index.md</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 22: Installation -->
+        <div class="slide" data-slide="22">
+            <h2>Feature CLI 安装</h2>
+            <div class="content-box">
+                <div class="workflow-steps">
+                    <div class="workflow-step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>克隆仓库</h4>
+                            <p><code>git clone http://igcode.uniview.com/RD-UNIVIEW/public/aicoding/feature-workflow.git</code></p>
+                        </div>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>安装依赖</h4>
+                            <p><code>cd feature-workflow && pnpm install</code></p>
+                        </div>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>构建项目</h4>
+                            <p><code>pnpm build</code></p>
+                        </div>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h4>全局链接</h4>
+                            <p><code>cd packages/cli && npm link</code></p>
+                        </div>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="step-number">5</div>
+                        <div class="step-content">
+                            <h4>验证安装</h4>
+                            <p><code>feature --version</code></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 23: Project Initialization -->
+        <div class="slide" data-slide="23">
+            <h2>工程初始化</h2>
+            <div class="content-box">
+                <div class="code-block">
+<span class="comment"># 进入工程目录</span>
+<span class="command">cd</span> /path/to/your-project
+
+<span class="comment"># 初始化 Feature（CodeBuddy 平台）</span>
+<span class="command">feature init --codebuddy -u your-name</span>
+
+<span class="comment"># 其他平台选项：</span>
+<span class="comment"># feature init -u your-name           # Claude Code（默认）</span>
+<span class="comment"># feature init --iflow -u your-name   # iFlow</span>
+<span class="comment"># feature init --cursor -u your-name  # Cursor</span>
+<span class="comment"># feature init --opencode -u your-name # OpenCode</span>
+                </div>
+                <h3>支持的 AI 平台</h3>
+                <table class="data-table">
+                    <tr>
+                        <th>平台</th>
+                        <th>命令参数</th>
+                        <th>特性支持</th>
+                    </tr>
+                    <tr>
+                        <td>Claude Code</td>
+                        <td>默认</td>
+                        <td>完整支持（Hooks）</td>
+                    </tr>
+                    <tr>
+                        <td>CodeBuddy</td>
+                        <td>--codebuddy</td>
+                        <td>完整支持（Hooks）</td>
+                    </tr>
+                    <tr>
+                        <td>iFlow</td>
+                        <td>--iflow</td>
+                        <td>完整支持（Hooks）</td>
+                    </tr>
+                    <tr>
+                        <td>Cursor/OpenCode</td>
+                        <td>--cursor/--opencode</td>
+                        <td>部分支持</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Slide 24: Directory Structure -->
+        <div class="slide" data-slide="24">
+            <h2>目录结构</h2>
+            <div class="content-box">
+                <div class="dir-tree">
+<span class="folder">.feature/</span>
+├── <span class="folder">spec/</span>                    <span class="comment"># 项目规范和标准</span>
+│   ├── <span class="folder">frontend/</span>            <span class="comment"># 前端规范</span>
+│   ├── <span class="folder">backend/</span>             <span class="comment"># 后端规范</span>
+│   ├── <span class="folder">guides/</span>              <span class="comment"># 思维指南</span>
+│   └── <span class="folder">unit-test/</span>           <span class="comment"># 测试规范</span>
+├── <span class="folder">tasks/</span>                   <span class="comment"># 任务跟踪和文档</span>
+│   ├── <span class="folder">&lt;MM-DD-task-name&gt;/</span>  <span class="comment"># 活动任务</span>
+│   │   ├── <span class="file">task.json</span>          <span class="comment"># 任务状态和元数据</span>
+│   │   ├── <span class="file">prd.md</span>             <span class="comment"># 产品需求文档</span>
+│   │   ├── <span class="file">implementation-plan.md</span> <span class="comment"># 实施计划</span>
+│   │   ├── <span class="file">task_plan.md</span>       <span class="comment"># 任务计划</span>
+│   │   ├── <span class="file">findings.md</span>        <span class="comment"># 研究发现</span>
+│   │   ├── <span class="file">progress.md</span>        <span class="comment"># 进度记录</span>
+│   │   ├── <span class="file">testcase.md</span>        <span class="comment"># 测试用例</span>
+│   │   └── <span class="file">testcase_checkdetail.md</span> <span class="comment"># 测试检查报告</span>
+│   └── <span class="folder">archive/</span>             <span class="comment"># 已归档任务</span>
+├── <span class="folder">solutions/</span>               <span class="comment"># 解决方案文档库</span>
+├── <span class="folder">workspace/</span>               <span class="comment"># 开发者工作区</span>
+├── <span class="folder">scripts/</span>                 <span class="comment"># 工作流脚本</span>
+├── <span class="file">workflow.md</span>              <span class="comment"># 工作流文档</span>
+└── <span class="file">config.yaml</span>              <span class="comment"># 配置文件</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 25: Simple Task Workflow -->
+        <div class="slide" data-slide="25">
+            <h2>简单任务流程</h2>
+            <div class="content-box">
+                <div class="flow-container" style="flex-wrap: wrap;">
+                    <div class="flow-item" style="background: linear-gradient(135deg, #ffc107, #ff9800);">/start-task</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item" style="background: linear-gradient(135deg, #ffc107, #ff9800);">/init-plan</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item" style="background: linear-gradient(135deg, #ffc107, #ff9800);">直接实现</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item" style="background: linear-gradient(135deg, #ffc107, #ff9800);">/check</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item" style="background: linear-gradient(135deg, #ffc107, #ff9800);">/finish-work</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item" style="background: linear-gradient(135deg, #ffc107, #ff9800);">/record-session</div>
+                </div>
+                <h3>适用场景</h3>
+                <table class="data-table">
+                    <tr>
+                        <th>场景</th>
+                        <th>示例</th>
+                    </tr>
+                    <tr>
+                        <td>添加小功能</td>
+                        <td>为项目添加日志工具函数</td>
+                    </tr>
+                    <tr>
+                        <td>修改配置</td>
+                        <td>调整应用配置参数</td>
+                    </tr>
+                    <tr>
+                        <td>简单重构</td>
+                        <td>提取公共方法、优化代码结构</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Slide 26: Complex Task Workflow -->
+        <div class="slide" data-slide="26">
+            <h2>复杂任务流程</h2>
+            <div class="content-box">
+                <div class="flow-container" style="flex-wrap: wrap; font-size: 0.8rem;">
+                    <div class="flow-item">/start-task</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item">/brainstorm</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item">/init-plan</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item">/research</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item">/before-dev</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item">/write-plan</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item">/write-testcase</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item">/check-testcase</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item">执行阶段</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item">/check</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item">/review</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item">/finish-work</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item">/compound</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item">/record-session</div>
+                </div>
+                <h3>关键节点说明</h3>
+                <table class="data-table">
+                    <tr>
+                        <th>阶段</th>
+                        <th>说明</th>
+                    </tr>
+                    <tr>
+                        <td>需求澄清</td>
+                        <td>/brainstorm 生成 PRD，需人工校验</td>
+                    </tr>
+                    <tr>
+                        <td>测试用例</td>
+                        <td>复杂任务必须执行，验证覆盖率</td>
+                    </tr>
+                    <tr>
+                        <td>正式评审</td>
+                        <td>多维度评审：正确性、可维护性、安全性</td>
+                    </tr>
+                    <tr>
+                        <td>经验沉淀</td>
+                        <td>/compound 创建解决方案文档</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Slide 27: Bug Fix Workflow -->
+        <div class="slide" data-slide="27">
+            <h2>问题修复流程</h2>
+            <div class="content-box">
+                <div class="flow-container" style="flex-wrap: wrap; font-size: 0.85rem;">
+                    <div class="flow-item" style="background: linear-gradient(135deg, #f44336, #d32f2f);">发现问题</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item">/start-task</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item">定位问题</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item">/research</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item">设计修复方案</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item">执行修复</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item">/check</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item">/compound</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item">/finish-work</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item">/record-session</div>
+                </div>
+                <h3>分类判断</h3>
+                <table class="data-table">
+                    <tr>
+                        <th>类型</th>
+                        <th>特征</th>
+                        <th>流程</th>
+                    </tr>
+                    <tr>
+                        <td>简单问题修复</td>
+                        <td>定位明确、范围小、不涉及架构</td>
+                        <td>简单任务流程</td>
+                    </tr>
+                    <tr>
+                        <td>复杂问题修复</td>
+                        <td>定位困难、范围大、涉及架构</td>
+                        <td>复杂任务流程</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Slide 28: Test Case Standard -->
+        <div class="slide" data-slide="28">
+            <h2>测试用例标准化</h2>
+            <div class="content-box">
+                <h3>产品类型识别</h3>
+                <div class="product-types">
+                    <div class="product-card">
+                        <h4>屏控产品 (PK)</h4>
+                        <p>ADU/CDU/DMC/A9/DC1801/KVM</p>
+                    </div>
+                    <div class="product-card">
+                        <h4>会议产品 (HY)</h4>
+                        <p>会议平板/OPS/摄像头</p>
+                    </div>
+                    <div class="product-card">
+                        <h4>信发产品 (XF)</h4>
+                        <p>信息发布平台/终端软件</p>
+                    </div>
+                </div>
+                <h3>测试流程</h3>
+                <div class="flow-container" style="flex-wrap: wrap;">
+                    <div class="flow-item">/write-testcase</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item">生成测试用例</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item">/check-testcase</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item">验证覆盖率</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-item">补充遗漏点</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 29: Review Dimensions -->
+        <div class="slide" data-slide="29">
+            <h2>正式评审维度</h2>
+            <div class="content-box">
+                <div class="review-dimensions">
+                    <div class="dimension-card">
+                        <h4>正确性</h4>
+                        <p>验证逻辑正确性</p>
+                    </div>
+                    <div class="dimension-card">
+                        <h4>可维护性</h4>
+                        <p>代码结构清晰度</p>
+                    </div>
+                    <div class="dimension-card">
+                        <h4>测试覆盖</h4>
+                        <p>测试覆盖率验证</p>
+                    </div>
+                    <div class="dimension-card">
+                        <h4>安全性</h4>
+                        <p>安全漏洞扫描</p>
+                    </div>
+                    <div class="dimension-card">
+                        <h4>性能</h4>
+                        <p>性能指标检查</p>
+                    </div>
+                    <div class="dimension-card">
+                        <h4>规范对齐</h4>
+                        <p>项目标准一致性</p>
+                    </div>
+                    <div class="dimension-card">
+                        <h4>影响范围</h4>
+                        <p>变更影响分析</p>
+                    </div>
+                    <div class="dimension-card">
+                        <h4>关联流程</h4>
+                        <p>执行流程影响</p>
+                    </div>
+                    <div class="dimension-card">
+                        <h4>文档完整</h4>
+                        <p>文档更新检查</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 30: Compound Tracks -->
+        <div class="slide" data-slide="30">
+            <h2>经验沉淀 /compound</h2>
+            <div class="content-box">
+                <div class="solution-tracks">
+                    <div class="track-card">
+                        <h4>🐛 Bug Track</h4>
+                        <p style="color: #aaa; margin-bottom: 10px;">适用于 bug、错误、性能问题</p>
+                        <ul>
+                            <li>Problem - 问题描述</li>
+                            <li>Symptoms - 症状表现</li>
+                            <li>Solution - 解决方案</li>
+                            <li>Prevention - 预防措施</li>
+                        </ul>
+                    </div>
+                    <div class="track-card">
+                        <h4>📖 Knowledge Track</h4>
+                        <p style="color: #aaa; margin-bottom: 10px;">适用于最佳实践、工作流、指导</p>
+                        <ul>
+                            <li>Context - 应用场景</li>
+                            <li>Guidance - 指导内容</li>
+                            <li>When to Apply - 适用时机</li>
+                            <li>Examples - 示例代码</li>
+                        </ul>
+                    </div>
+                </div>
+                <h3>输出位置</h3>
+                <p style="color: #ccc; font-family: 'Consolas', monospace;">.feature/solutions/&lt;category&gt;/&lt;filename&gt;.md</p>
+            </div>
+        </div>
+
+        <!-- Slide 31: Quick Start -->
+        <div class="slide" data-slide="31">
+            <h2>快速开始</h2>
+            <div class="content-box">
+                <div class="workflow-steps">
+                    <div class="workflow-step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>启动 AI 助手</h4>
+                            <p>打开 CodeBuddy 或其他支持的 AI 编码工具</p>
+                        </div>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>初始化会话</h4>
+                            <p><code>/start-task</code></p>
+                        </div>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>描述任务需求</h4>
+                            <p>向 AI 描述你要完成的开发任务</p>
+                        </div>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h4>按引导执行</h4>
+                            <p>AI 会根据任务复杂度引导你完成相应的工作流</p>
+                        </div>
+                    </div>
+                </div>
+                <h3>常用命令速查</h3>
+                <table class="data-table">
+                    <tr>
+                        <th>场景</th>
+                        <th>命令</th>
+                    </tr>
+                    <tr><td>开始新任务</td><td>/start-task</td></tr>
+                    <tr><td>需求澄清</td><td>/brainstorm</td></tr>
+                    <tr><td>编写计划</td><td>/write-plan</td></tr>
+                    <tr><td>开发检查</td><td>/check</td></tr>
+                    <tr><td>完成收尾</td><td>/finish-work</td></tr>
+                    </table>
+                <div class="tips-box" style="margin-top: 25px; background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(0, 153, 204, 0.1)); border: 1px solid rgba(0, 212, 255, 0.4); border-radius: 12px; padding: 20px; width: 100%;">
+                    <div style="color: #00d4ff; font-weight: bold; margin-bottom: 12px; font-size: 1.1rem;">🏆 最佳实践：多模型协作</div>
+                    <div style="color: #e0e0e0; font-size: 0.95rem; line-height: 2;">
+                        <div style="margin-bottom: 10px;"><strong>建议使用不同模型进行开发与评审，获得更客观的质量保障：</strong></div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px;">
+                            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px;">
+                                <div style="color: #4caf50; font-weight: bold; margin-bottom: 8px;">✍️ 开发阶段</div>
+                                <div>• 使用 GLM-5.0 进行代码编写<br>• 或使用其他擅长代码生成的模型</div>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px;">
+                                <div style="color: #ff9800; font-weight: bold; margin-bottom: 8px;">🔍 评审阶段</div>
+                                <div>• 使用 Kimi-K2.5 进行独立评审<br>• 交叉验证，发现潜在问题</div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+                            <strong>💡 进阶技巧：</strong>CodeBuddy + Lingma 双工具协作<br>
+                            同时打开同一工程，一个负责开发执行，一个负责独立评审，实现真正的"双盲"质量把控
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 32: Thank You -->
+        <div class="slide slide-thankyou" data-slide="32">
+            <h1>谢谢!</h1>
+            <p style="margin-bottom: 30px;">Feature 工作流让开发更高效</p>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 60px; flex-wrap: wrap;">
+                <div class="content-box" style="text-align: left; padding: 25px; max-width: 450px;">
+                    <p style="color: #00d4ff; margin-bottom: 15px; font-size: 1.1rem;">📚 文档地址</p>
+                    <p style="color: #aaa; font-size: 0.9rem;">http://igcode.uniview.com/RD-UNIVIEW/public/aicoding/feature-workflow</p>
+                    <p style="color: #00d4ff; margin: 20px 0 15px; font-size: 1.1rem;">💬 讨论区</p>
+                    <p style="color: #aaa; font-size: 0.9rem;">https://rd-bbs.uniview.com/t/topic/4939</p>
+                </div>
+                <div style="text-align: center;">
+                    <p style="color: #ffc107; margin-bottom: 15px; font-size: 1.1rem; font-weight: bold;">📝 扫码签到</p>
+                    <img src="./202604-AI特性工作流培训及演示培训满意度调查.png" alt="培训满意度调查" style="max-width: 280px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);">
+                    <p style="color: #aaa; margin-top: 10px; font-size: 0.85rem;">请扫码填写培训满意度调查</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="keyboard-hint">
+        <kbd>←</kbd> <kbd>→</kbd> 翻页 | <kbd>T</kbd> 目录 | <kbd>Home</kbd> 首页 | <kbd>End</kbd> 末页 | <kbd>Esc</kbd> 关闭目录
+    </div>
+
+    <div class="nav-controls">
+        <button class="nav-btn" id="prevBtn" onclick="prevSlide()">◀ 上一页</button>
+        <button class="nav-btn" id="nextBtn" onclick="nextSlide()">下一页 ▶</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 32;
+        
+        // TOC Data - 幻灯片标题列表
+        const tocData = [
+            { num: 1, title: "封面", section: "概述" },
+            { num: 2, title: "当前开发流程存在的问题", section: "概述" },
+            { num: 3, title: "核心理念", section: "概述" },
+            { num: 4, title: "Skills 命令体系", section: "概述" },
+            { num: 5, title: "任务分类处理", section: "概述" },
+            { num: 6, title: "/start-task - 初始化会话", section: "指令详解" },
+            { num: 7, title: "/brainstorm - 需求澄清", section: "指令详解" },
+            { num: 8, title: "/init-plan - 初始化计划", section: "指令详解" },
+            { num: 9, title: "/research - 代码研究", section: "指令详解" },
+            { num: 10, title: "/before-dev - 开发准备", section: "指令详解" },
+            { num: 11, title: "/write-plan - 编写实施计划", section: "指令详解" },
+            { num: 12, title: "/write-testcase - 生成测试用例", section: "指令详解" },
+            { num: 13, title: "/check-testcase - 验证测试用例", section: "指令详解" },
+            { num: 14, title: "/executing-plans - 顺序执行", section: "指令详解" },
+            { num: 15, title: "/subagent-work - 子代理执行", section: "指令详解" },
+            { num: 16, title: "/impact - 影响面分析", section: "指令详解" },
+            { num: 17, title: "/check - 开发自检", section: "指令详解" },
+            { num: 18, title: "/review - 正式评审", section: "指令详解" },
+            { num: 19, title: "/finish-work - 收尾工作", section: "指令详解" },
+            { num: 20, title: "/compound - 经验沉淀", section: "指令详解" },
+            { num: 21, title: "/record-session - 记录会话", section: "指令详解" },
+            { num: 22, title: "Feature CLI 安装", section: "安装使用" },
+            { num: 23, title: "工程初始化", section: "安装使用" },
+            { num: 24, title: "目录结构", section: "安装使用" },
+            { num: 25, title: "简单任务流程", section: "工作流程" },
+            { num: 26, title: "复杂任务流程", section: "工作流程" },
+            { num: 27, title: "问题修复流程", section: "工作流程" },
+            { num: 28, title: "测试用例标准化", section: "工作流程" },
+            { num: 29, title: "正式评审维度", section: "工作流程" },
+            { num: 30, title: "经验沉淀", section: "工作流程" },
+            { num: 31, title: "快速开始", section: "安装使用" },
+            { num: 32, title: "结束页", section: "其他" }
+        ];
+        
+        // Generate TOC
+        function generateTOC() {
+            const tocList = document.getElementById('tocList');
+            let currentSection = '';
+            let html = '';
+            
+            tocData.forEach(item => {
+                if (item.section !== currentSection) {
+                    currentSection = item.section;
+                    html += `<div class="toc-section-title">${currentSection}</div>`;
+                }
+                html += `
+                    <li onclick="goToSlide(${item.num})" class="${item.num === currentSlide ? 'active' : ''}">
+                        <span class="toc-num">${item.num}</span>
+                        <span class="toc-title">${item.title}</span>
+                    </li>
+                `;
+            });
+            
+            tocList.innerHTML = html;
+        }
+        
+        // Toggle TOC
+        function toggleTOC() {
+            const sidebar = document.getElementById('tocSidebar');
+            const overlay = document.getElementById('tocOverlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('visible');
+        }
+        
+        // Go to specific slide
+        function goToSlide(num) {
+            currentSlide = num;
+            updateSlide();
+            toggleTOC();
+        }
+
+        function updateSlide() {
+            const slides = document.querySelectorAll('.slide');
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active', 'prev');
+                if (index + 1 === currentSlide) {
+                    slide.classList.add('active');
+                } else if (index + 1 < currentSlide) {
+                    slide.classList.add('prev');
+                }
+            });
+
+            // Update progress bar
+            const progress = (currentSlide / totalSlides) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+
+            // Update counter
+            document.getElementById('slideCounter').textContent = `${currentSlide} / ${totalSlides}`;
+
+            // Update buttons
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+            
+            // Update TOC active state
+            generateTOC();
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 1) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevSlide();
+            } else if (e.key.toLowerCase() === 't') {
+                e.preventDefault();
+                toggleTOC();
+            } else if (e.key === 'Escape') {
+                const sidebar = document.getElementById('tocSidebar');
+                if (sidebar.classList.contains('open')) {
+                    toggleTOC();
+                }
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                currentSlide = 1;
+                updateSlide();
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                currentSlide = totalSlides;
+                updateSlide();
+            }
+        });
+
+        // Initialize
+        generateTOC();
+        updateSlide();
+    </script>
+</body>
+</html>

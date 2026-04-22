@@ -1,0 +1,175 @@
+{
+  "version": "0.2.14",
+  "description": "Command namespace migration + fix incorrect task directory paths in agent docs",
+  "migrations": [
+    {
+      "type": "rename",
+      "from": ".claude/commands/start.md",
+      "to": ".claude/commands/feature/start.md",
+      "description": "Move Claude start command to feature/ subdirectory"
+    },
+    {
+      "type": "rename",
+      "from": ".claude/commands/finish-work.md",
+      "to": ".claude/commands/feature/finish-work.md",
+      "description": "Move Claude finish-work command to feature/ subdirectory"
+    },
+    {
+      "type": "rename",
+      "from": ".claude/commands/before-frontend-dev.md",
+      "to": ".claude/commands/feature/before-frontend-dev.md",
+      "description": "Move Claude before-frontend-dev command to feature/ subdirectory"
+    },
+    {
+      "type": "rename",
+      "from": ".claude/commands/before-backend-dev.md",
+      "to": ".claude/commands/feature/before-backend-dev.md",
+      "description": "Move Claude before-backend-dev command to feature/ subdirectory"
+    },
+    {
+      "type": "rename",
+      "from": ".claude/commands/check-frontend.md",
+      "to": ".claude/commands/feature/check-frontend.md",
+      "description": "Move Claude check-frontend command to feature/ subdirectory"
+    },
+    {
+      "type": "rename",
+      "from": ".claude/commands/check-backend.md",
+      "to": ".claude/commands/feature/check-backend.md",
+      "description": "Move Claude check-backend command to feature/ subdirectory"
+    },
+    {
+      "type": "rename",
+      "from": ".claude/commands/check-cross-layer.md",
+      "to": ".claude/commands/feature/check-cross-layer.md",
+      "description": "Move Claude check-cross-layer command to feature/ subdirectory"
+    },
+    {
+      "type": "rename",
+      "from": ".claude/commands/record-session.md",
+      "to": ".claude/commands/feature/record-session.md",
+      "description": "Move Claude record-session command to feature/ subdirectory"
+    },
+    {
+      "type": "rename",
+      "from": ".claude/commands/update-spec.md",
+      "to": ".claude/commands/feature/update-spec.md",
+      "description": "Move Claude update-spec command to feature/ subdirectory"
+    },
+    {
+      "type": "rename",
+      "from": ".claude/commands/onboard.md",
+      "to": ".claude/commands/feature/onboard.md",
+      "description": "Move Claude onboard command to feature/ subdirectory"
+    },
+    {
+      "type": "rename",
+      "from": ".claude/commands/break-loop.md",
+      "to": ".claude/commands/feature/break-loop.md",
+      "description": "Move Claude break-loop command to feature/ subdirectory"
+    },
+    {
+      "type": "rename",
+      "from": ".claude/commands/integrate-skill.md",
+      "to": ".claude/commands/feature/integrate-skill.md",
+      "description": "Move Claude integrate-skill command to feature/ subdirectory"
+    },
+    {
+      "type": "rename",
+      "from": ".claude/commands/create-command.md",
+      "to": ".claude/commands/feature/create-command.md",
+      "description": "Move Claude create-command command to feature/ subdirectory"
+    },
+    {
+      "type": "rename",
+      "from": ".claude/commands/parallel.md",
+      "to": ".claude/commands/feature/parallel.md",
+      "description": "Move Claude parallel command to feature/ subdirectory"
+    },
+    {
+      "type": "rename",
+      "from": ".cursor/commands/start.md",
+      "to": ".cursor/commands/feature-start.md",
+      "description": "Rename Cursor start command with feature- prefix"
+    },
+    {
+      "type": "rename",
+      "from": ".cursor/commands/finish-work.md",
+      "to": ".cursor/commands/feature-finish-work.md",
+      "description": "Rename Cursor finish-work command with feature- prefix"
+    },
+    {
+      "type": "rename",
+      "from": ".cursor/commands/before-frontend-dev.md",
+      "to": ".cursor/commands/feature-before-frontend-dev.md",
+      "description": "Rename Cursor before-frontend-dev command with feature- prefix"
+    },
+    {
+      "type": "rename",
+      "from": ".cursor/commands/before-backend-dev.md",
+      "to": ".cursor/commands/feature-before-backend-dev.md",
+      "description": "Rename Cursor before-backend-dev command with feature- prefix"
+    },
+    {
+      "type": "rename",
+      "from": ".cursor/commands/check-frontend.md",
+      "to": ".cursor/commands/feature-check-frontend.md",
+      "description": "Rename Cursor check-frontend command with feature- prefix"
+    },
+    {
+      "type": "rename",
+      "from": ".cursor/commands/check-backend.md",
+      "to": ".cursor/commands/feature-check-backend.md",
+      "description": "Rename Cursor check-backend command with feature- prefix"
+    },
+    {
+      "type": "rename",
+      "from": ".cursor/commands/check-cross-layer.md",
+      "to": ".cursor/commands/feature-check-cross-layer.md",
+      "description": "Rename Cursor check-cross-layer command with feature- prefix"
+    },
+    {
+      "type": "rename",
+      "from": ".cursor/commands/record-session.md",
+      "to": ".cursor/commands/feature-record-session.md",
+      "description": "Rename Cursor record-session command with feature- prefix"
+    },
+    {
+      "type": "rename",
+      "from": ".cursor/commands/update-spec.md",
+      "to": ".cursor/commands/feature-update-spec.md",
+      "description": "Rename Cursor update-spec command with feature- prefix"
+    },
+    {
+      "type": "rename",
+      "from": ".cursor/commands/onboard.md",
+      "to": ".cursor/commands/feature-onboard.md",
+      "description": "Rename Cursor onboard command with feature- prefix"
+    },
+    {
+      "type": "rename",
+      "from": ".cursor/commands/break-loop.md",
+      "to": ".cursor/commands/feature-break-loop.md",
+      "description": "Rename Cursor break-loop command with feature- prefix"
+    },
+    {
+      "type": "rename",
+      "from": ".cursor/commands/integrate-skill.md",
+      "to": ".cursor/commands/feature-integrate-skill.md",
+      "description": "Rename Cursor integrate-skill command with feature- prefix"
+    },
+    {
+      "type": "rename",
+      "from": ".cursor/commands/create-command.md",
+      "to": ".cursor/commands/feature-create-command.md",
+      "description": "Rename Cursor create-command command with feature- prefix"
+    },
+    {
+      "type": "rename",
+      "from": ".cursor/commands/parallel.md",
+      "to": ".cursor/commands/feature-parallel.md",
+      "description": "Rename Cursor parallel command with feature- prefix"
+    }
+  ],
+  "notes": "This release includes: (1) Command namespace migration - Claude Code uses subdirectory (.claude/commands/feature/), Cursor uses filename prefix (.cursor/commands/feature-*); (2) Bug fix for incorrect task directory paths in agent docs - these files will be updated via normal template sync"
+}

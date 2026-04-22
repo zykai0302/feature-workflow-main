@@ -1,0 +1,83 @@
+/**
+ * CodeBuddy configurator
+ *
+ * Configures CodeBuddy by copying templates from src/templates/codebuddy/.
+ * CodeBuddy supports commands, agents, hooks, and settings.
+ */
+
+import { readFileSync, readdirSync, statSync } from "node:fs";
+import path from "node:path";
+import { getCodebuddyTemplatePath } from "../templates/extract.js";
+import { ensureDir, writeFile } from "../utils/file-writer.js";
+import { resolvePlaceholders } from "./shared.js";
+
+/**
+ * Files to exclude when copying templates
+ * These are TypeScript compilation artifacts
+ */
+const EXCLUDE_PATTERNS = [
+  ".d.ts",
+  ".d.ts.map",
+  ".js",
+  ".js.map",
+  "__pycache__",
+];
+
+/**
+ * Check if a file should be excluded
+ */
+function shouldExclude(filename: string): boolean {
+  for (const pattern of EXCLUDE_PATTERNS) {
+    if (filename.endsWith(pattern) || filename === pattern) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Recursively copy directory, excluding build artifacts
+ * Uses writeFile to handle file conflicts with the global writeMode setting
+ */
+async function copyDirFiltered(src: string, dest: string): Promise<void> {
+  ensureDir(dest);
+
+  for (const entry of readdirSync(src)) {
+    if (shouldExclude(entry)) {
+      continue;
+    }
+
+    const srcPath = path.join(src, entry);
+    const destPath = path.join(dest, entry);
+    const stat = statSync(srcPath);
+
+    if (stat.isDirectory()) {
+      await copyDirFiltered(srcPath, destPath);
+    } else {
+      let content = readFileSync(srcPath, "utf-8");
+      // Replace placeholders in settings.json
+      if (entry === "settings.json") {
+        content = resolvePlaceholders(content);
+      }
+      await writeFile(destPath, content);
+    }
+  }
+}
+
+/**
+ * Configure CodeBuddy by copying from templates
+ *
+ * The codebuddy templates include:
+ * - commands/ - Slash commands
+ * - agents/ - Multi-agent pipeline configurations
+ * - hooks/ - Context injection hooks
+ * - skills/ - Skill definitions
+ * - settings.json - Hook and tool configurations
+ */
+export async function configureCodebuddy(cwd: string): Promise<void> {
+  const sourcePath = getCodebuddyTemplatePath();
+  const destPath = path.join(cwd, ".codebuddy");
+
+  // Copy templates, excluding build artifacts
+  await copyDirFiltered(sourcePath, destPath);
+}

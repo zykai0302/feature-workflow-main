@@ -1,0 +1,9 @@
+---
+description: 
+alwaysApply: true
+enabled: true
+updatedAt: 2026-04-09T04:35:44.060Z
+provider: 
+---
+
+## 禁止自己push到仓库，除非我同意
